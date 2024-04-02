@@ -1,31 +1,11 @@
-import {
-  NavigationMenu,
-  NavigationMenuContent,
-  NavigationMenuItem,
-  NavigationMenuLink,
-  NavigationMenuList,
-  navigationMenuTriggerStyle,
-} from "@/components/ui/navigation-menu"
+import { Button } from "../ui/button"
 
 function Navbar() {
   return (
-    <div className="w-full flex bg-black p-5 flex-row-reverse">
+    <div className="w-full flex bg-[#46b59bbd] shadow p-5 flex-row-reverse text-white">
       <ul>
-        <NavigationMenu>
-            <NavigationMenuList>
-              //USE VARIANT HERE 
-              <NavigationMenuItem>
-                  <NavigationMenuLink className={navigationMenuTriggerStyle()}>Link1</NavigationMenuLink>
-              </NavigationMenuItem>
-              <NavigationMenuItem>
-                  <NavigationMenuLink className={navigationMenuTriggerStyle()}>Link2</NavigationMenuLink>
-              </NavigationMenuItem>
-              <NavigationMenuItem>
-                  <NavigationMenuLink className={navigationMenuTriggerStyle()}>Link3</NavigationMenuLink>
-              </NavigationMenuItem>
-              
-            </NavigationMenuList>
-          </NavigationMenu>
+        <Button >Register</Button>
+        <Button className="mx-2">Login</Button>
       </ul>
     </div>
   )

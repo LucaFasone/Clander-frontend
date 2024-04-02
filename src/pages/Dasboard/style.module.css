@@ -1,6 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Niconne&display=swap');
 
 .TextLogo{
+    /* TODO set not selectable and normal cursor style*/;
     font-size: 650%;
 	    text-align: center;
 	    color: #fcedd8;
