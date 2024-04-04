@@ -1,11 +1,11 @@
 import { Button } from "../ui/button"
-
+import logo from "../../assets/logo.svg"
 function Navbar() {
   return (
-    <div className="w-full flex bg-[#46b59bbd] shadow p-5 flex-row-reverse text-white">
+    <div className="w-full flex bg-[#46b59bbd] shadow  text-white">
+      <img src={logo} className="logoImg"/>
       <ul>
-        <Button >Register</Button>
-        <Button className="mx-2">Login</Button>
+        <Button>Login</Button>
       </ul>
     </div>
   )

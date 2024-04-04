@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <style>
+    .logo {
+      font-size: 70px; /* Riduci la dimensione del font */
+      text-anchor: middle; /* Centra orizzontalmente */
+      font-family: 'Niconne', cursive;
+      font-weight: 700;
+      fill: #fcedd8;
+      filter: drop-shadow(1px 1px #eb452b) drop-shadow(1px 1px #efa032) drop-shadow(1.5px 1.5px #46b59b) drop-shadow(2px 2px #017e7f);
+    }
+  </style>
+  <text x="50%" y="50%" class="logo" alignment-baseline="middle" text-anchor="middle">C</text>
+</svg>
