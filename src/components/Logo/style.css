@@ -1,8 +1,0 @@
-@import url('https://fonts.googleapis.com/css2?family=Niconne&display=swap');
-.logo{
-    font-size: 80px;
-    font-family: 'Niconne', cursive;
-    font-weight: 700;
-    fill: #fcedd8;
-    filter: drop-shadow(1px 1.3px #eb452b) drop-shadow(1.3px 1.4px 0px #efa032) drop-shadow(1.3px 1.4px 0px #46b59b) drop-shadow(1.4px 1.5px 0px #017e7f) drop-shadow(1.4px 1.6px 0px #052939) drop-shadow(1.5px 1.7px 0px #c11a2b);
-}

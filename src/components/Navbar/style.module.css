@@ -1,0 +1,16 @@
+.TextLogo{
+    /* TODO set not selectable and normal cursor style*/;
+    font-size: 2.3rem;
+	text-align: center;
+	color: #fcedd8;
+	font-family: 'Niconne', cursive;
+	font-weight: 700;
+    text-shadow: 2px 2px 0px #eb452b, 
+                  3px 3px 0px #efa032, 
+                  4px 4px 0px #46b59b, 
+                  5px 5px 0px #017e7f;  
+    display: flex;
+    justify-content: center;     
+    margin-left: 0.75rem;
+    margin-right: 0.75rem;
+}

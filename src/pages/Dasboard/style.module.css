@@ -2,7 +2,6 @@
 
 .TextLogo{
     /* TODO set not selectable and normal cursor style*/;
-    font-size: 650%;
 	text-align: center;
 	color: #fcedd8;
 	font-family: 'Niconne', cursive;
@@ -10,16 +9,55 @@
     text-shadow: 2px 2px 0px #eb452b, 
                   3px 3px 0px #efa032, 
                   4px 4px 0px #46b59b, 
-                  5px 5px 0px #017e7f, 
-                  6px 6px 0px #052939, 
-                  7px 7px 0px #c11a2b;
+                  5px 5px 0px #017e7f,
+                  6px 6px 0px #052939;
     display: flex;
-    justify-content: center;
-}
-.ClanderLogo{
-    composes: TextLogo;
-    display: block;
+    justify-content: center;        
 }
 
+@keyframes bounce {
+    0% {
+      transform: translateY(0px);
+    }
+    50% {
+      transform: translateY(8px);
+    }
+    100% {
+      transform: translateY(0px);
+    }
+  }
+  
+.bounce_animation {
+  animation-name: bounce;
+  animation-duration: 2s;
+  animation-iteration-count: infinite;
+  animation-direction: alternate;
+  animation-timing-function: ease-in-out;
+}
+  
+.bounce_animation:nth-child(1) {
+  animation-delay: 0s;
+}
+  
+.bounce_animation:nth-child(2) {
+  animation-delay: 0.1s;
+}
+  
+.bounce_animation:nth-child(3) {
+  animation-delay: 0.2s;
+}
+  
+.bounce_animation:nth-child(4) {
+  animation-delay: 0.3s;
+}
+  
+.bounce_animation:nth-child(5) {
+  animation-delay: 0.4s;
+}
 
-
+.bounce_animation:nth-child(6) {
+  animation-delay: 0.5s;
+}
+.bounce_animation:nth-child(7) {
+  animation-delay: 0.6s;
+}
