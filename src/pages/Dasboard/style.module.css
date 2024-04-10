@@ -3,7 +3,7 @@
 .TextLogo{
     /* TODO set not selectable and normal cursor style*/;
 	text-align: center;
-	color: #fcedd8;
+  color: #fcedd8;
 	font-family: 'Niconne', cursive;
 	font-weight: 700;
     text-shadow: 2px 2px 0px #eb452b, 

@@ -6,11 +6,12 @@ function Dashboard() {
   return (
     <>
       <Navbar />
+
       <div className="container my-5">
-        <div className={style.TextLogo}>
+        <div className={`${style.TextLogo} text-6xl`}>
           Create Your
         </div>
-        <div className={style.TextLogo}>
+        <div className={`${style.TextLogo} text-7xl tracking-wide`}>
           <div className={style.bounce_animation}>C</div>
           <div className={style.bounce_animation}>l</div>
           <div className={style.bounce_animation}>a</div>
@@ -20,10 +21,9 @@ function Dashboard() {
           <div className={style.bounce_animation}>r</div>
         </div>
       </div>
-
     </>
+
   );
 }
 
 export default Dashboard;
-

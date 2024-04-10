@@ -1,5 +1,5 @@
 import { Button } from "../ui/button"
-import style from "./style.module.css"
+import style from "./navbarStyle.module.css"
 
 function Navbar() {
   return (
