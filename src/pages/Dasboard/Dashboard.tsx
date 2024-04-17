@@ -1,5 +1,6 @@
 import style from './style.module.css';
-import { Navbar, Calendar } from '@/components';
+import { Navbar } from '@/components';
+import { Calendar } from '@/components/ui/calendar';
 
 function Dashboard() {
 
@@ -20,11 +21,20 @@ function Dashboard() {
           <div className={style.bounce_animation}>r</div>
         </div>
       </div>
-      <div className="container">
-        <Calendar/>
-
+      <div className="flex justify-center self-center relative">
+        <div className="border-2 border-black flex blur-[2px] flex-col w-full sm:flex-row sm:w-1/2 ">
+          <Calendar className=''/>
+          <div className="flex ">
+            <ul>
+              <li>a</li>
+              <li>a</li>
+              <li>a</li>
+              <li>a</li>
+            </ul>
+          </div>
+        </div>
+        <button className='absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 blur-0 border-black border-2 px-4 py-2'>Login</button>
       </div>
-
     </>
 
   );
