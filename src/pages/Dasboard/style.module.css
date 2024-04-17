@@ -1,18 +1,9 @@
-@import url('https://fonts.googleapis.com/css2?family=Niconne&display=swap');
 
 .TextLogo{
-    /* TODO set not selectable and normal cursor style*/;
 	text-align: center;
-  color: #fcedd8;
-	font-family: 'Niconne', cursive;
 	font-weight: 700;
-    text-shadow: 2px 2px 0px #eb452b, 
-                  3px 3px 0px #efa032, 
-                  4px 4px 0px #46b59b, 
-                  5px 5px 0px #017e7f,
-                  6px 6px 0px #052939;
-    display: flex;
-    justify-content: center;        
+  display: flex;
+  justify-content: center;        
 }
 
 @keyframes bounce {
