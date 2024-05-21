@@ -16,6 +16,7 @@ function ClanderBox({ className }: { className: string }) {
           mode="single"
           onSelect={(currentDate?: Date) => {if(user){
           }}}
+          disableNavigation
           />
         <div className="flex  justify-center h-full flex-col py-3 ps-3 me-3">
           <div id="userNotLogged">
@@ -33,7 +34,6 @@ function ClanderBox({ className }: { className: string }) {
               status={"complete"}
               isClander={false}
               date={new Date('2024/05/21')}
-              dateEndClander={new Date()}
             />
             <CalendarEvent
               id={3}
@@ -41,7 +41,6 @@ function ClanderBox({ className }: { className: string }) {
               status={"complete"}
               isClander={false}
               date={new Date('2024/02/16')}
-              dateEndClander={new Date()}
             />
             <CalendarEvent
               id={4}
@@ -49,7 +48,6 @@ function ClanderBox({ className }: { className: string }) {
               status={""}
               isClander={false}
               date={new Date('2024/06/20')}
-              dateEndClander={new Date()}
             />
             <CalendarEvent
               id={4}
@@ -57,7 +55,6 @@ function ClanderBox({ className }: { className: string }) {
               status={"complete"}
               isClander={false}
               date={new Date('2024/12/1')}
-              dateEndClander={new Date()}
             />
           </div>
         </div>

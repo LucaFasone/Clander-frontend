@@ -1,6 +1,6 @@
 import { Calendar } from '@/components/ui/calendar';
 import style from './style.module.css';
-import { Navbar, ClanderBox, TextSection} from '@/components';
+import { Navbar, ClanderBox, TextSection, CalendarEvent} from '@/components';
 import React from 'react';
 
 function LandingPage() {
@@ -31,45 +31,50 @@ function LandingPage() {
       </div>
       <div className="block overflow-hidden">
         <div className="overflow-x-hidden animate-marquee ">
-        <Calendar 
-          today={new Date(date.getFullYear(), date.getMonth(), 5)}
-          className='inline-block mx-10 border-2 calendarTheme1 rounded-md select-none'
-          classNames={
-            {
-              day_today: 'bg-[#1A5276] text-white'
-            }
-          }/>
-         <Calendar 
-          today={new Date(date.getFullYear(), 6, 15)}
-          className='inline-block mx-10 border-2 calendarTheme2 rounded-md select-none'
-          classNames={
-            {
-              day_today: 'bg-[#FFFF99] text-gray '
-            }
-          }
+        {[...Array(4)].map((_, index) => (
+          <Calendar
+            key={index}
+            today={new Date(date.getFullYear(), date.getMonth(), index * 3 + 5)}
+            className={`inline-block mx-10 border-2 calendarTheme${index + 1} rounded-md select-none`}
+            classNames={{
+              day_today: index === 0 ? 'bg-[#1A5276] text-white' : index === 1 ? 'bg-[#FFFF99] text-gray' : index === 2 ? 'bg-[#8A2BE2] text-white' : 'bg-[#F5F5F5] text-gray'
+            }}
           />
-         <Calendar 
-          today={new Date(date.getFullYear(), 3, 8)}
-          className='inline-block mx-10 border-2 calendarTheme3 rounded-md select-none'
-          classNames={
-            {
-              day_today: 'bg-[#8A2BE2] text-white '
-            }
-          }
-          />
-           <Calendar 
-          today={new Date(date.getFullYear(), 7, 20)}
-          className='inline-block mx-10 border-2 calendarTheme4 rounded-md select-none'
-          classNames={
-            {
-              day_today: 'bg-[#F5F5F5] text-gray '
-            }
-          }/>
+        ))}
         </div>
       </div>
-      <div className="">
-        <TextSection/>
-        <TextSection/>
+      <div className="flex flex-col m-5 items-center mt-10">
+        <div className="flex justify-between flex-row mb-5 w-1/2">
+          <TextSection />
+          <Calendar
+            className='border-2 calendarTheme1 rounded-md select-none'
+            classNames={
+                {
+                  day_today: 'bg-[#1A5276] text-white',
+
+                }
+            }
+            disableNavigation
+            modifiers={{selected: [new Date(date.getFullYear(),date.getMonth(),10),new Date(date.getFullYear(),date.getMonth(),12),new Date(date.getFullYear(),date.getMonth(),15)]}}
+
+          />
+          <div className="">
+          {[
+          { nome: "go shopping", status:"",date: new Date(date.getFullYear(), date.getMonth(), 10) },
+          { nome: "Wash car", status: "complete", date: new Date(date.getFullYear(), date.getMonth(), 12) },
+          { nome: "Make Clander", status: "progress", date: new Date(date.getFullYear(), date.getMonth(), 15) },
+        ].map((event, index) => (
+          <CalendarEvent key={index} id={index} nome={event.nome} status={event.status} isClander={false} date={event.date} />
+        ))}
+          </div>
+         
+        </div>
+        <div className="flex justify-between flex-row w-1/2">
+          <TextSection/>
+          <Calendar
+            disableNavigation
+            />
+        </div>
       </div>
     </>
 
