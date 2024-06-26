@@ -2,6 +2,7 @@ import { Calendar } from '@/components/ui/calendar';
 import style from './style.module.css';
 import { Navbar, ClanderBox, TextSection, CalendarEvent} from '@/components';
 import React from 'react';
+import { addDays } from 'date-fns';
 
 function LandingPage() {
   const [date, setDate] = React.useState<Date>(new Date())
@@ -44,13 +45,14 @@ function LandingPage() {
         </div>
       </div>
       <div className="flex flex-col m-5 items-center mt-10">
-        <div className="flex justify-between flex-row mb-5 w-1/2">
-          <TextSection />
+        <div className="flex justify-between mb-5 w-1/2">
+          <TextSection  />
           <Calendar
             className='border-2 calendarTheme1 rounded-md select-none'
             classNames={
                 {
-                  day_today: 'bg-[#1A5276] text-white',
+                  day_selected: 'bg-[#1A5276] text-white',
+                  day_today: 'backgroundColorShadow text-gray'
 
                 }
             }
@@ -69,11 +71,37 @@ function LandingPage() {
           </div>
          
         </div>
-        <div className="flex justify-between flex-row w-1/2">
-          <TextSection/>
+        <div className="flex w-1/2 justify-around">
+          <TextSection
+          />
           <Calendar
+            className='border-2 calendarTheme2 rounded-md select-none cursor-default'
+            classNames={
+                {
+                  day_range_start:'!bg-[#FFFF99] text-gray-600 !rounded-l-full w-[40px]',
+                  day_range_middle:'!bg-[#FFFF99] text-gray-600 w-[40px]',
+                  day_range_end:'!bg-[#FFFF99] text-gray-600 rounded-r-full'
+              
+                }
+            }
             disableNavigation
+            mode='range'
+            selected={{
+              from: new Date(2024,4,14),
+              to: addDays(new Date(2024,4,14),4)
+            }}
+
             />
+            <div className="">
+              <CalendarEvent
+              id={0}
+              nome='Travel to oppyland'
+              status='progress'
+              isClander={true}
+              date={new Date(2024,4,14)}
+              dateEndClander={addDays(new Date(2024,4,14),4)}
+              />
+            </div>
         </div>
       </div>
     </>
