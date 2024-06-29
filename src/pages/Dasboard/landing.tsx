@@ -1,6 +1,6 @@
 import { Calendar } from '@/components/ui/calendar';
 import style from './style.module.css';
-import { Navbar, ClanderBox, TextSection, CalendarEvent} from '@/components';
+import { Navbar, ClanderBox, TextSection, CalendarEvent } from '@/components';
 import React from 'react';
 import { addDays } from 'date-fns';
 
@@ -23,90 +23,54 @@ function LandingPage() {
           <div className={style.bounce_animation}>r</div>
         </div>
       </div>
-      <div className="flex justify-center relative">
-        <ClanderBox className='blur select-none'/>
-        <button className='absolute select-text top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 blur-0  boxColorShadow rounded-md border-2 font-secondary text-[#5D3FD3] font-semibold px-5 py-2'>Login</button> 
-      </div>
-      <div className="flex w-full justify-center ">
-        <span className='my-5 font-default mainColorsShadow text-6xl font-bold tracking-wider'>Customize</span>
-      </div>
-      <div className="block overflow-hidden">
-        <div className="overflow-x-hidden animate-marquee ">
-        {[...Array(4)].map((_, index) => (
-          <Calendar
-            key={index}
-            today={new Date(date.getFullYear(), date.getMonth(), index * 3 + 5)}
-            className={`inline-block mx-10 border-2 calendarTheme${index + 1} rounded-md select-none`}
-            classNames={{
-              day_today: index === 0 ? 'bg-[#1A5276] text-white' : index === 1 ? 'bg-[#FFFF99] text-gray' : index === 2 ? 'bg-[#8A2BE2] text-white' : 'bg-[#F5F5F5] text-gray'
-            }}
-          />
-        ))}
-        </div>
-      </div>
-      <div className="flex flex-col m-5 items-center mt-10">
-        <div className="flex justify-between mb-5 w-1/2">
-          <TextSection  />
-          <Calendar
-            className='border-2 calendarTheme1 rounded-md select-none'
-            classNames={
-                {
-                  day_selected: 'bg-[#1A5276] text-white',
-                  day_today: 'backgroundColorShadow text-gray'
-
-                }
-            }
-            disableNavigation
-            modifiers={{selected: [new Date(date.getFullYear(),date.getMonth(),10),new Date(date.getFullYear(),date.getMonth(),12),new Date(date.getFullYear(),date.getMonth(),15)]}}
-
-          />
-          <div className="">
-          {[
-          { nome: "go shopping", status:"",date: new Date(date.getFullYear(), date.getMonth(), 10) },
-          { nome: "Wash car", status: "complete", date: new Date(date.getFullYear(), date.getMonth(), 12) },
-          { nome: "Make Clander", status: "progress", date: new Date(date.getFullYear(), date.getMonth(), 15) },
-        ].map((event, index) => (
-          <CalendarEvent key={index} id={index} nome={event.nome} status={event.status} isClander={false} date={event.date} />
-        ))}
-          </div>
-         
-        </div>
-        <div className="flex w-1/2 justify-around">
-          <TextSection
-          />
-          <Calendar
-            className='border-2 calendarTheme2 rounded-md select-none cursor-default'
-            classNames={
-                {
-                  day_range_start:'!bg-[#FFFF99] text-gray-600 !rounded-l-full w-[40px]',
-                  day_range_middle:'!bg-[#FFFF99] text-gray-600 w-[40px]',
-                  day_range_end:'!bg-[#FFFF99] text-gray-600 rounded-r-full'
-              
-                }
-            }
-            disableNavigation
-            mode='range'
-            selected={{
-              from: new Date(2024,4,14),
-              to: addDays(new Date(2024,4,14),4)
-            }}
-
-            />
+      <div className="flex justify-center relative ">
+        <div className="flex border-4 boxColorShadow ">
+          <Calendar className=' w-1/2' />
+          <div className=" py-3 w-1/2 ">
             <div className="">
               <CalendarEvent
-              id={0}
-              nome='Travel to oppyland'
-              status='progress'
-              isClander={true}
-              date={new Date(2024,4,14)}
-              dateEndClander={addDays(new Date(2024,4,14),4)}
+                id={1}
+                nome={"Viaggio a OppyLand"}
+                status={"progress"}
+                isClander={true}
+                date={new Date('2024/05/02')}
+                dateEndClander={new Date("2024/05/18")}
+              />
+              <CalendarEvent
+                id={2}
+                nome={"Wash car"}
+                status={"complete"}
+                isClander={false}
+                date={new Date('2024/05/21')}
+              />
+              <CalendarEvent
+                id={3}
+                nome={"Oppy Lecture"}
+                status={"complete"}
+                isClander={false}
+                date={new Date('2024/02/16')}
+              />
+              <CalendarEvent
+                id={4}
+                nome={"Oppy Exam"}
+                status={""}
+                isClander={false}
+                date={new Date('2024/06/20')}
+              />
+              <CalendarEvent
+                id={4}
+                nome={"Go out with friend"}
+                status={"complete"}
+                isClander={false}
+                date={new Date('2024/12/1')}
               />
             </div>
+          </div>
+          <button className='absolute select-text top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 blur-0  boxColorShadow rounded-md border-2 font-secondary text-[#5D3FD3] font-semibold px-5 py-2'>Login</button>
+          </div>
         </div>
-      </div>
-    </>
-
-  );
+        </>
+      );
 }
 
-export default LandingPage;
+      export default LandingPage;
