@@ -1,11 +1,41 @@
 import { Calendar } from '@/components/ui/calendar';
 import style from './style.module.css';
-import { Navbar, ClanderBox, TextSection, CalendarEvent } from '@/components';
-import React from 'react';
-import { addDays } from 'date-fns';
+import { Navbar, CalendarEvent } from '@/components';
+import { useEffect, useState } from 'react';
+import { isEqual } from "date-fns";
+
+import { type DateRange, ActiveModifiers, Matcher } from 'react-day-picker';
 
 function LandingPage() {
-  const [date, setDate] = React.useState<Date>(new Date())
+  const [selectedDays, setSelectedDays] = useState<Date[]>([]);
+  const [selectedRange, setSelectedRange] = useState([{
+    from: new Date(),
+    to: new Date(),
+  }]);
+
+  let currentFrom: Date | null = null;
+  let currentTo: Date | null  = null;
+
+  const handleDayClick = (selectedDay: Date) => {    
+    const isSelected = selectedDays.some(day => day.getTime() === selectedDay.getTime());
+    if (isSelected) {
+      setSelectedDays(selectedDays.filter(day => day.getTime() !== selectedDay.getTime()));
+    } else {
+      setSelectedDays([...selectedDays, selectedDay]);
+    }
+  };
+  const handleDayClickKeyDown = (day: Date, activeModifiers: ActiveModifiers, e: React.KeyboardEvent) =>{
+    e.preventDefault()
+    console.log(e.key, day);
+    
+  }
+  useEffect(() => {
+    console.log(selectedDays);
+
+
+
+  }, [selectedDays])
+
   return (
     <>
       <Navbar />
@@ -23,54 +53,38 @@ function LandingPage() {
           <div className={style.bounce_animation}>r</div>
         </div>
       </div>
-      <div className="flex justify-center relative ">
-        <div className="flex border-4 boxColorShadow ">
-          <Calendar className=' w-1/2' />
-          <div className=" py-3 w-1/2 ">
-            <div className="">
-              <CalendarEvent
-                id={1}
-                nome={"Viaggio a OppyLand"}
-                status={"progress"}
-                isClander={true}
-                date={new Date('2024/05/02')}
-                dateEndClander={new Date("2024/05/18")}
-              />
-              <CalendarEvent
-                id={2}
-                nome={"Wash car"}
-                status={"complete"}
-                isClander={false}
-                date={new Date('2024/05/21')}
-              />
-              <CalendarEvent
-                id={3}
-                nome={"Oppy Lecture"}
-                status={"complete"}
-                isClander={false}
-                date={new Date('2024/02/16')}
-              />
-              <CalendarEvent
-                id={4}
-                nome={"Oppy Exam"}
-                status={""}
-                isClander={false}
-                date={new Date('2024/06/20')}
-              />
-              <CalendarEvent
-                id={4}
-                nome={"Go out with friend"}
-                status={"complete"}
-                isClander={false}
-                date={new Date('2024/12/1')}
-              />
-            </div>
-          </div>
-          <button className='absolute select-text top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 blur-0  boxColorShadow rounded-md border-2 font-secondary text-[#5D3FD3] font-semibold px-5 py-2'>Login</button>
+      <div className="!max-w-3xl min-[375px]:container mt-16 border-4 boxColorShadow p-0 ">
+        <div className="lg:flex ">
+          <div className="lg:w-1/2">
+            <Calendar
+              classNames={{
+                months: '',
+                head_row: '',
+                row: '',
+              }}
+              defaultMonth={new Date(2024, 5)}
+              disableNavigation
+              selected={selectedDays}
+              onDayClick={handleDayClick}
+              onDayKeyDown={(day,{},e)=>{currentFrom = day;}}
+              onDayKeyUp={handleDayClickKeyDown}
+              mode="multiple"
+              className="mb-4"
+              modifiers={
+                {
+                  booked: selectedRange
+                }
+              }
+
+            />
           </div>
         </div>
-        </>
-      );
+
+        {/*<button className='absolute select-text top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 blur-0  boxColorShadow rounded-md border-2 font-secondary text-[#5D3FD3] font-semibold px-5 py-2'>Login</button>*/}
+
+      </div>
+    </>
+  );
 }
 
-      export default LandingPage;
+export default LandingPage;
