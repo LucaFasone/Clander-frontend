@@ -2,21 +2,16 @@ import { Calendar } from '@/components/ui/calendar';
 import style from './style.module.css';
 import { Navbar, CalendarEvent } from '@/components';
 import { useEffect, useState } from 'react';
-import { isEqual } from "date-fns";
 
-import { type DateRange, ActiveModifiers, Matcher } from 'react-day-picker';
+import { type DateRange, ActiveModifiers } from 'react-day-picker';
 
 function LandingPage() {
   const [selectedDays, setSelectedDays] = useState<Date[]>([]);
-  const [selectedRange, setSelectedRange] = useState([{
-    from: new Date(),
-    to: new Date(),
-  }]);
-
-  let currentFrom: Date | null = null;
-  let currentTo: Date | null  = null;
-
-  const handleDayClick = (selectedDay: Date) => {    
+  const [selectedRange, setSelectedRange] = useState<DateRange>({
+    from: undefined,
+    to: undefined,
+  });
+  const handleDayClick = (selectedDay: Date) => {
     const isSelected = selectedDays.some(day => day.getTime() === selectedDay.getTime());
     if (isSelected) {
       setSelectedDays(selectedDays.filter(day => day.getTime() !== selectedDay.getTime()));
@@ -24,17 +19,20 @@ function LandingPage() {
       setSelectedDays([...selectedDays, selectedDay]);
     }
   };
-  const handleDayClickKeyDown = (day: Date, activeModifiers: ActiveModifiers, e: React.KeyboardEvent) =>{
-    e.preventDefault()
-    console.log(e.key, day);
-    
+  const handleDayClickKeyDown = (day: Date, activeModifiers: ActiveModifiers, e: React.KeyboardEvent) => {
+    e.preventDefault()    
+    if (e.key == 'Shift') {
+      console.log(e.key, day);
+      setSelectedRange({
+        ...selectedRange,
+        to: day
+
+      })
+    }
   }
   useEffect(() => {
-    console.log(selectedDays);
-
-
-
-  }, [selectedDays])
+    console.log(selectedRange);
+  }, [selectedRange])
 
   return (
     <>
@@ -66,15 +64,25 @@ function LandingPage() {
               disableNavigation
               selected={selectedDays}
               onDayClick={handleDayClick}
-              onDayKeyDown={(day,{},e)=>{currentFrom = day;}}
+              onDayKeyDown={(day: Date, { }, e) => {
+                e.preventDefault()
+                if (e.shiftKey && selectedRange.from === undefined) {
+                  setSelectedRange({
+                    ...selectedRange,
+                    from: day
+                  })
+                }
+              }}
               onDayKeyUp={handleDayClickKeyDown}
-              mode="multiple"
               className="mb-4"
               modifiers={
                 {
-                  booked: selectedRange
+                  booked: selectedRange,
+                  from: selectedRange.from,
+                  to: selectedRange.to
                 }
               }
+              modifiersClassNames={{ from: '!rounded-l-full', to: "!rounded-r-full", booked: 'bg-gray-400 !w-[54px] rounded-none', }}
 
             />
           </div>
