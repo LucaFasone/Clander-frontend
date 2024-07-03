@@ -1,39 +1,8 @@
 import { Calendar } from '@/components/ui/calendar';
 import style from './style.module.css';
 import { Navbar, CalendarEvent } from '@/components';
-import { useEffect, useState } from 'react';
 
-import { type DateRange, ActiveModifiers } from 'react-day-picker';
-
-function LandingPage() {
-  const [selectedDays, setSelectedDays] = useState<Date[]>([]);
-  const [selectedRange, setSelectedRange] = useState<DateRange>({
-    from: undefined,
-    to: undefined,
-  });
-  const handleDayClick = (selectedDay: Date) => {
-    const isSelected = selectedDays.some(day => day.getTime() === selectedDay.getTime());
-    if (isSelected) {
-      setSelectedDays(selectedDays.filter(day => day.getTime() !== selectedDay.getTime()));
-    } else {
-      setSelectedDays([...selectedDays, selectedDay]);
-    }
-  };
-  const handleDayClickKeyDown = (day: Date, activeModifiers: ActiveModifiers, e: React.KeyboardEvent) => {
-    e.preventDefault()    
-    if (e.key == 'Shift') {
-      console.log(e.key, day);
-      setSelectedRange({
-        ...selectedRange,
-        to: day
-
-      })
-    }
-  }
-  useEffect(() => {
-    console.log(selectedRange);
-  }, [selectedRange])
-
+function LandingPage() { 
   return (
     <>
       <Navbar />
@@ -53,7 +22,7 @@ function LandingPage() {
       </div>
       <div className="!max-w-3xl min-[375px]:container mt-16 border-4 boxColorShadow p-0 ">
         <div className="lg:flex ">
-          <div className="lg:w-1/2">
+          <div className="">
             <Calendar
               classNames={{
                 months: '',
@@ -62,28 +31,6 @@ function LandingPage() {
               }}
               defaultMonth={new Date(2024, 5)}
               disableNavigation
-              selected={selectedDays}
-              onDayClick={handleDayClick}
-              onDayKeyDown={(day: Date, { }, e) => {
-                e.preventDefault()
-                if (e.shiftKey && selectedRange.from === undefined) {
-                  setSelectedRange({
-                    ...selectedRange,
-                    from: day
-                  })
-                }
-              }}
-              onDayKeyUp={handleDayClickKeyDown}
-              className="mb-4"
-              modifiers={
-                {
-                  booked: selectedRange,
-                  from: selectedRange.from,
-                  to: selectedRange.to
-                }
-              }
-              modifiersClassNames={{ from: '!rounded-l-full', to: "!rounded-r-full", booked: 'bg-gray-400 !w-[54px] rounded-none', }}
-
             />
           </div>
         </div>
