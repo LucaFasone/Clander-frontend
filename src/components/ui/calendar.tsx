@@ -1,21 +1,20 @@
 import * as React from "react"
 import { ChevronLeft, ChevronRight } from "lucide-react"
-import { DateRange, DayPicker } from "react-day-picker"
+import { DayPicker } from "react-day-picker"
 
 import { cn } from "@/lib/utils"
 import { buttonVariants } from "@/components/ui/button"
 import { useCalendar } from "@/hooks/useCalendar"
 
-export type CalendarProps = React.ComponentProps<typeof DayPicker>
+export type CalendarProps = React.ComponentProps<typeof DayPicker> & { isDisabled: boolean }
 
 function Calendar({
   className,
   classNames,
   showOutsideDays = true,
-  mode='multiple',
+  mode="multiple",
   ...props
-}: CalendarProps) {
-  // calendar state variables
+}: CalendarProps,isDisabled=false) {
   const { selectedDays, selectedRange, handleDayClick, handleDayClickKeyUp, handleDayClickKeyDown } = useCalendar();
 
   return (
@@ -42,7 +41,8 @@ function Calendar({
         cell: "h-10 w-12 text-center text-sm p-0 relative [&:has([aria-selected].day-range-end)]:rounded-r-md [&:has([aria-selected].day-outside)]:bg-neutral-100/50  first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md focus-within:relative focus-within:z-20 dark:[&:has([aria-selected].day-outside)]:bg-neutral-800/50 dark:[&:has([aria-selected])]:bg-neutral-800",
         day: cn(
           buttonVariants({ variant: "ghost" }),
-          "h-9 w-9 p-0 font-normal aria-selected:opacity-100"
+          "h-9 w-9 p-0 font-normal aria-selected:opacity-100 ",
+          isDisabled ? "cursor-default" : "cursor-pointer",
         ),
         day_range_end: "day-range-end",
         day_selected:
@@ -60,16 +60,17 @@ function Calendar({
         IconLeft: ({ ...props }) => <ChevronLeft className="h-4 w-4" />,
         IconRight: ({ ...props }) => <ChevronRight className="h-4 w-4" />,
       }}
-      selected={selectedDays}
-      onDayClick={handleDayClick}
-      onDayKeyDown={handleDayClickKeyDown}
-      onDayKeyUp={handleDayClickKeyUp}
-      modifiers={{
+      selected={isDisabled ? [] : selectedDays}
+      onDayClick={isDisabled ? ()=>{} : handleDayClick}
+      onDayKeyDown={isDisabled ? ()=>{} : handleDayClickKeyDown}
+      onDayKeyUp={isDisabled ? ()=>{} : handleDayClickKeyUp}
+      modifiers={isDisabled ? {} : {
         fullRange: selectedRange,
         from: selectedRange.filter(range => range.from !== undefined).map(range => range.from!),
         to: selectedRange.filter(range => range.to !== undefined).map(range => range.to!)
       }}
-      modifiersClassNames={{ from: '!rounded-l-full', to: "!rounded-r-full", fullRange: 'bg-gray-400 !w-[50px] !rounded-none' }}
+      //se da errore e qua il bug
+      modifiersClassNames={{ from: '!rounded-l-full', to: "!rounded-r-full", fullRange: 'bg-gray-400 !w-[50px] !rounded-none', progress: '!bg-blue-400', completed: '!bg-green-400', late: '!bg-red-400'}}
       {...props}
 
     />

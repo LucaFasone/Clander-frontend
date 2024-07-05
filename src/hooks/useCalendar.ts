@@ -13,7 +13,7 @@ export const useCalendar = () => {
     from: undefined,
     to: undefined,
   }]);
-  const [isUserSelectingRange, setUserSelectingRange] = useState<Boolean>(false);
+  const [isUserSelectingRange, setUserSelectingRange] = useState<boolean>(false);
   const [currentFrom, setCurrentFrom] = useState<Date | undefined>(undefined);
 
   const handleDayClick = (selectedDay: Date) => {
@@ -27,7 +27,7 @@ export const useCalendar = () => {
     }
   };
 
-  const handleDayClickKeyUp = (selectedDay: Date, a: ActiveModifiers, e: React.KeyboardEvent) => {
+  const handleDayClickKeyUp = (selectedDay: Date, _a: ActiveModifiers, e: React.KeyboardEvent) => {
     if (e.key == 'Shift' && isUserSelectingRange && currentFrom !== undefined) {
       for (let i = 0; i < selectedRange.length; i++) {
         if (selectedRange[i].from !== undefined && selectedRange[i].to !== undefined && (isEqual(selectedRange[i].from!, currentFrom) && isEqual(selectedRange[i].to!, selectedDay) || isEqual(selectedRange[i].to!, currentFrom) && isEqual(selectedRange[i].from!, selectedDay))) {
@@ -85,7 +85,7 @@ export const useCalendar = () => {
     }
   };
 
-  const handleDayClickKeyDown = (selectedDay: Date, activeModifiers: ActiveModifiers, e: React.KeyboardEvent) => {
+  const handleDayClickKeyDown = (selectedDay: Date, _activeModifiers: ActiveModifiers, e: React.KeyboardEvent) => {
     if (e.key == 'Shift' && !isUserSelectingRange && currentFrom == undefined) {
       setUserSelectingRange(true)
       setCurrentFrom(selectedDay)

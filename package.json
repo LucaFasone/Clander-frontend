@@ -12,6 +12,7 @@
   "dependencies": {
     "@radix-ui/react-navigation-menu": "^1.1.4",
     "@radix-ui/react-slot": "^1.0.2",
+    "@tanstack/react-router": "^1.43.12",
     "autoprefixer": "^10.4.19",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.0",
@@ -25,6 +26,8 @@
     "tailwindcss-animate": "^1.0.7"
   },
   "devDependencies": {
+    "@tanstack/router-devtools": "^1.43.12",
+    "@tanstack/router-plugin": "^1.43.12",
     "@types/node": "^20.12.2",
     "@types/react": "^18.2.66",
     "@types/react-dom": "^18.2.22",

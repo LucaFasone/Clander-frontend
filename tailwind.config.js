@@ -1,12 +1,14 @@
+import tailwindcss_animate from "tailwindcss-animate";
+
 /** @type {import('tailwindcss').Config} */
-module.exports = {
+export default {
   darkMode: ["class"],
   content: [
     './pages/**/*.{ts,tsx}',
     './components/**/*.{ts,tsx}',
     './app/**/*.{ts,tsx}',
     './src/**/*.{ts,tsx,svg}',
-  
+
   ],
   prefix: "",
   theme: {
@@ -28,14 +30,14 @@ module.exports = {
           to: { height: "0" },
         },
         'marquee': {
-          '0%': { transform: 'translateX(100%)' },
-          '100%': { transform: 'translateX(-40%)'},
+        from: { transform: "translateX(0)" },
+        to: { transform: "translateX(calc(-100% - var(--gap)))" },
         },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
-        "marquee": 'marquee 30s linear infinite',
+        marquee: "marquee var(--duration) linear infinite",
       },
       fontFamily: {
         'default':'Niconne',
@@ -44,8 +46,8 @@ module.exports = {
     },
   },
   plugins: [
-    require("tailwindcss-animate"),
-    
-    
+    tailwindcss_animate,
+
+
   ],
-}           
+};
