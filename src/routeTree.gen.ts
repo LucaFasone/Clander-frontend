@@ -11,13 +11,31 @@
 // Import Routes
 
 import { Route as rootRoute } from './routes/__root'
+import { Route as AuthImport } from './routes/_auth'
 import { Route as IndexImport } from './routes/index'
+import { Route as AuthTestImport } from './routes/_auth/test'
+import { Route as AuthMaoImport } from './routes/_auth/mao'
 
 // Create/Update Routes
+
+const AuthRoute = AuthImport.update({
+  id: '/_auth',
+  getParentRoute: () => rootRoute,
+} as any)
 
 const IndexRoute = IndexImport.update({
   path: '/',
   getParentRoute: () => rootRoute,
+} as any)
+
+const AuthTestRoute = AuthTestImport.update({
+  path: '/test',
+  getParentRoute: () => AuthRoute,
+} as any)
+
+const AuthMaoRoute = AuthMaoImport.update({
+  path: '/mao',
+  getParentRoute: () => AuthRoute,
 } as any)
 
 // Populate the FileRoutesByPath interface
@@ -31,12 +49,36 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexImport
       parentRoute: typeof rootRoute
     }
+    '/_auth': {
+      id: '/_auth'
+      path: ''
+      fullPath: ''
+      preLoaderRoute: typeof AuthImport
+      parentRoute: typeof rootRoute
+    }
+    '/_auth/mao': {
+      id: '/_auth/mao'
+      path: '/mao'
+      fullPath: '/mao'
+      preLoaderRoute: typeof AuthMaoImport
+      parentRoute: typeof AuthImport
+    }
+    '/_auth/test': {
+      id: '/_auth/test'
+      path: '/test'
+      fullPath: '/test'
+      preLoaderRoute: typeof AuthTestImport
+      parentRoute: typeof AuthImport
+    }
   }
 }
 
 // Create and export the route tree
 
-export const routeTree = rootRoute.addChildren({ IndexRoute })
+export const routeTree = rootRoute.addChildren({
+  IndexRoute,
+  AuthRoute: AuthRoute.addChildren({ AuthMaoRoute, AuthTestRoute }),
+})
 
 /* prettier-ignore-end */
 
@@ -46,11 +88,27 @@ export const routeTree = rootRoute.addChildren({ IndexRoute })
     "__root__": {
       "filePath": "__root.tsx",
       "children": [
-        "/"
+        "/",
+        "/_auth"
       ]
     },
     "/": {
       "filePath": "index.tsx"
+    },
+    "/_auth": {
+      "filePath": "_auth.tsx",
+      "children": [
+        "/_auth/mao",
+        "/_auth/test"
+      ]
+    },
+    "/_auth/mao": {
+      "filePath": "_auth/mao.tsx",
+      "parent": "/_auth"
+    },
+    "/_auth/test": {
+      "filePath": "_auth/test.tsx",
+      "parent": "/_auth"
     }
   }
 }

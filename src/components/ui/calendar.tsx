@@ -69,7 +69,6 @@ function Calendar({
         from: selectedRange.filter(range => range.from !== undefined).map(range => range.from!),
         to: selectedRange.filter(range => range.to !== undefined).map(range => range.to!)
       }}
-      //se da errore e qua il bug
       modifiersClassNames={{ from: '!rounded-l-full', to: "!rounded-r-full", fullRange: 'bg-gray-400 !w-[50px] !rounded-none', progress: '!bg-blue-400', completed: '!bg-green-400', late: '!bg-red-400'}}
       {...props}
 
