@@ -1,35 +1,45 @@
 import { hc } from 'hono/client'
 import { queryOptions } from "@tanstack/react-query"
-import {type ApiRoutes} from "../../../index"
+import { type ApiRoutes } from "../../../index"
 
 const client = hc<ApiRoutes>('/')
-const api = client.api
+export const api = client.api
 
 const getUserProfile = async () => {
     const res = await api.me.$get()
-    if (!res.ok) {
+    if (res.status === 401) {
         throw new Error("Server Error")
     }
     const data = await res.json()
     return data
+
 }
-const getEventForUser = async () => {
-    const res = await api.calendar.$get()
+export async function getAllSingleDayEvent() {
+    const res = await api.calendar.$get();
     if (!res.ok) {
-        throw new Error("Server Error")
+        throw new Error("Server error");
     }
-    const data = await res.json()
-    return data
+    const data = await res.json();
+    return data;
 }
 
+export async function deleteEventById({Id}: {Id: number}){
+    const res = await api.calendar.event[":id"].$delete({ param: { id: String(Id) } });
+    if (!res.ok) {
+      throw new Error('Errore nella cancellazione dell\'evento');
+    }
+    return res.json();
+  }
 
 export const userQueryOptions = queryOptions({
     queryKey: ["get-user-profile"],
     queryFn: getUserProfile,
     staleTime: Infinity,
-  })
-  export const eventQueryOptions = queryOptions({
-    queryKey: ["get-events-user"],
-    queryFn: getEventForUser,
-    staleTime: Infinity,
-  })
+})
+
+export const getAllEventQueryOptions = queryOptions({
+    queryKey: ['get-all-single-day-event'],
+    queryFn: getAllSingleDayEvent,
+    staleTime: Infinity
+})
+

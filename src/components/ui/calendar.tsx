@@ -4,7 +4,6 @@ import { DayPicker } from "react-day-picker"
 
 import { cn } from "@/lib/utils"
 import { buttonVariants } from "@/components/ui/button"
-import { useCalendar } from "@/hooks/useCalendar"
 
 export type CalendarProps = React.ComponentProps<typeof DayPicker> & { isDisabled: boolean }
 
@@ -15,12 +14,11 @@ function Calendar({
   mode="multiple",
   ...props
 }: CalendarProps,isDisabled=false) {
-  const { selectedDays, selectedRange, handleDayClick, handleDayClickKeyUp, handleDayClickKeyDown } = useCalendar();
 
   return (
     <DayPicker
       showOutsideDays={showOutsideDays}
-      className={cn("p-3", className)}
+      className={cn("p-3", className, isDisabled ? "select-none" : "")}
       classNames={{
         months: "flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0",
         month: "space-y-4",
@@ -60,15 +58,7 @@ function Calendar({
         IconLeft: ({ ...props }) => <ChevronLeft className="h-4 w-4" />,
         IconRight: ({ ...props }) => <ChevronRight className="h-4 w-4" />,
       }}
-      selected={isDisabled ? [] : selectedDays}
-      onDayClick={isDisabled ? ()=>{} : handleDayClick}
-      onDayKeyDown={isDisabled ? ()=>{} : handleDayClickKeyDown}
-      onDayKeyUp={isDisabled ? ()=>{} : handleDayClickKeyUp}
-      modifiers={isDisabled ? {} : {
-        fullRange: selectedRange,
-        from: selectedRange.filter(range => range.from !== undefined).map(range => range.from!),
-        to: selectedRange.filter(range => range.to !== undefined).map(range => range.to!)
-      }}
+     
       modifiersClassNames={{ from: '!rounded-l-full', to: "!rounded-r-full", fullRange: 'bg-gray-400 !w-[50px] !rounded-none', progress: '!bg-blue-400', completed: '!bg-green-400', late: '!bg-red-400'}}
       {...props}
 
