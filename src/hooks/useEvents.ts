@@ -1,5 +1,5 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { api, deleteEventById, getAllEventQueryOptions } from '@/lib/api';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { api, getAllEventQueryOptions } from '@/lib/api';
 
 type Event = {
   title: string;
@@ -21,7 +21,7 @@ export function useEvents() {
     const existingEvent = await queryClient.ensureQueryData(getAllEventQueryOptions);
     queryClient.setQueryData(getAllEventQueryKey, ({
       ...existingEvent,
-      events: [...existingEvent.events, await res.json()]
+      events: [...existingEvent.events, await res.json()].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
     }))
   }
 

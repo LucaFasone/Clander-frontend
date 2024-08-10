@@ -2,12 +2,9 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "./ui/button";
 import { deleteEventById } from "@/lib/api";
 import { useEvents } from "@/hooks/useEvents";
-import { useCalendar } from "@/hooks/useCalendar";
-//setSelectedDay: React.Dispatch<React.SetStateAction<Date | undefined>>, setSelectedRange: React.Dispatch<React.SetStateAction<DateRange | undefined>>
-export default function DeleteButton({ Id, /*setSelectedDay setSelectedRange*/ }: { Id: number,  }) {
+export default function DeleteButton({ Id, resetSelection, }: { Id: number, resetSelection: () => void,  }) {
     const queryClient = useQueryClient();
     const { getAllEventQueryKey } = useEvents();
-    const {resetSelection} = useCalendar();
     const mutation = useMutation({
         mutationFn: deleteEventById,
         onSuccess: () => {
@@ -16,10 +13,7 @@ export default function DeleteButton({ Id, /*setSelectedDay setSelectedRange*/ }
                     ...event,
                     events: event!.events?.filter((e) => e.id !== Id),
                 }))
-
-            //setSelectedDay(undefined);
-            //setSelectedRange(undefined);
-            resetSelection();
+           resetSelection()
         }
     })
     return (

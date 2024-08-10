@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { isBefore, isEqual, } from 'date-fns';
-import { DateRange, Day, type ActiveModifiers } from 'react-day-picker';
+import { isEqual, } from 'date-fns';
+import { DateRange, type ActiveModifiers } from 'react-day-picker';
 
 export const useCalendar = () => {
   const [selectedDay, setSelectedDay] = useState<Date | undefined>()
