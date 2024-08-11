@@ -1,13 +1,6 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { api, getAllEventQueryOptions } from '@/lib/api';
-
-type Event = {
-  title: string;
-  description: string;
-  date: Date;
-  dateEnd: Date | undefined;
-  activeReminder: boolean;
-};
+import { Event } from '@/lib/types';
 export function useEvents() {
   const queryClient = useQueryClient();
   const query = useQuery(getAllEventQueryOptions);

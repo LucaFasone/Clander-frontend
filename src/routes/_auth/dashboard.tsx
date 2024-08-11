@@ -7,29 +7,19 @@ import { Button } from '@/components/ui/button';
 import { isEqual } from 'date-fns';
 import { useEvents } from '@/hooks/useEvents';
 import DeleteButton from '@/components/DeleteButton';
-import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from '@/components/ui/pagination';
-import { useEffect, useState } from 'react';
-import { getPaginatedEvents } from '@/lib/api';
-import { keepPreviousData, useQuery, useQueryClient } from '@tanstack/react-query';
+import { usePagination } from '@/hooks/usePagination';
+import PaginationWrapper from '@/components/PaginationWrapper';
 
 export const Route = createFileRoute('/_auth/dashboard')({
   component: Dashboard
 })
 
 function Dashboard() {
-  const [page, setPage] = useState(0)
   const { user } = Route.useRouteContext()
   const { selectedDay, handleDayClick, handleDayClickKeyUp, handleDayClickKeyDown, selectedRange, resetSelection } = useCalendar();
   const { query } = useEvents();
   const { isPending, error, data } = query
-  //use mutation
-  const queryClient = useQueryClient()
-
-  const dataPaginated = useQuery({
-    queryKey: ['event', page],
-    queryFn: () => getPaginatedEvents(page),
-    placeholderData: keepPreviousData,
-  })
+  const { getEventPage, paginatedEvent, page, setPage } = usePagination();
 
   const eventDays = data?.events.filter(d => d.dateEnd == null).map(d => new Date(d.date));
   const rangedEvents = data?.events
@@ -39,31 +29,16 @@ function Dashboard() {
       to: new Date(event.dateEnd!)
     })) || [];
 
-    async function getPaginatedEvent() {
-      let pagee = 0;
-      for (let index = 0; index < 10; index++) {
-        let existingData = await queryClient.ensureQueryData({ queryKey: ['event', pagee], queryFn: () => getPaginatedEvents(pagee) });
-        
-        if (new Date(existingData.events[index].date).getTime() == selectedDay?.getTime()) {
-          console.log('sclero');
-          return pagee;
-        } else {
-          pagee += 1;
-        }
-      }
-    }
-
   function renderButton() {
     if (selectedDay || selectedRange?.to) {
+      getEventPage(selectedDay).then((event) => {
+        console.log(event, "Event");
+      }).catch((error) => {
+        console.log(error, "Error rendering event", error.message);
+      })
       const event = data?.events.find(e => (isEqual(e.date, selectedDay!) && e.dateEnd == null) || (isEqual(e.date, selectedRange?.from!) && isEqual(e.dateEnd!, selectedRange?.to!)));
       if (event) {
-        getPaginatedEvent().then((event) =>{
-          console.log(event, "Event");
 
-        }).catch((error) => {
-          console.log(error, "Error rendering event");
-          
-        })
         return (
           <>
             <Button className='mr-3'>Modifica Evento</Button>
@@ -82,7 +57,6 @@ function Dashboard() {
 
     }
   }
-
   return (
     <div className='container flex flex-col items-center'>
       <h1 className='mt-2 text-3xl'>Dashboard</h1>
@@ -137,30 +111,24 @@ function Dashboard() {
           <div className="md:w-1/2 p-3">
             <h2 className="text-2xl flex justify-center mb-5">Events per month</h2>
             <div className="mt-4">
-              {dataPaginated?.data?.events.map((event) => (
+              {paginatedEvent?.map((event) => (
                 <div key={event.id} className="">
-                  {/*Agggiungere paginazione*/}
                   <CalendarEvent
                     id={event.id} name={event.title} date={new Date(event.date)}
                     dateEndCalendar={event.dateEnd ? new Date(event.dateEnd) : undefined}
                   />
                 </div>
               ))}
-              <Pagination>
-                <PaginationContent>
-                  <PaginationItem>
-                    <PaginationPrevious href="#" onClick={() => setPage((page) => page == 0 ? page : page -= 1)} />
-                  </PaginationItem>
-                  <PaginationItem>
-                    <PaginationNext href="#" onClick={() => setPage((page) => {
-                      if (dataPaginated.data?.events.length! < 5) {
-                        return page
-                      }
-                      return page += 1
-                    })} />
-                  </PaginationItem>
-                </PaginationContent>
-              </Pagination>
+              <PaginationWrapper
+                page={page}
+                setPageNext={() => setPage((page) => page == 0 ? page : page -= 1)}
+                setPagePrev={() => setPage((page) => {
+                  if (paginatedEvent?.length! < 5) {
+                    return page
+                  }
+                  return page += 1
+                })}
+              />
             </div>
           </div>
         </div>
