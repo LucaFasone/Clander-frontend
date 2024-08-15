@@ -1,29 +1,28 @@
-import { getPaginatedEvents } from "@/lib/api";
+import { getEventFromMonth } from "@/lib/api";
 import { keepPreviousData, useQuery, useQueryClient } from "@tanstack/react-query";
 import { compareAsc } from "date-fns";
 import { useState } from "react";
 
-export const usePagination = () => {
+export const usePagination = (monthNumber: number) => {
     const [page, setPage] = useState(0)
     const queryClient = useQueryClient()
-
-    const {data,isPending} = useQuery({
-        queryKey: ['event', page],
-        queryFn: () => getPaginatedEvents(page),
+    const { data, isPending } = useQuery({
+        queryKey: ['event', page, monthNumber],
+        queryFn: () => getEventFromMonth(page, monthNumber),
         placeholderData: keepPreviousData,
     })
-
+  
     async function getEventPage(selectedDay: Date | undefined) {
         if (selectedDay === undefined) {
             return -1
         }
-        const batchSize = 4;  //Parallelization?? dont know if this is optimal or not 
+        const batchSize = 10;  //Parallelization?? dont know if this is optimal or not 
         let page = 0;
         while (true) {
             const queries = Array.from({ length: batchSize }, (_, i) => {
                 return queryClient.fetchQuery({
-                    queryKey: ['Paginatedevents', page + i],
-                    queryFn: () => getPaginatedEvents(page + i),
+                    queryKey: ['Paginatedevents', page + i, monthNumber],
+                    queryFn: () => getEventFromMonth(page + i, monthNumber),
                     gcTime: 0,
                     staleTime: 0,
                 });

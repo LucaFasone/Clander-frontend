@@ -5,7 +5,7 @@ import { AuthContext } from '@/hooks/useAuth';
 
 interface RouterContext {
     queryClient: QueryClient,
-    authentication: AuthContext
+    authentication: AuthContext,
   } 
 export const Route = createRootRouteWithContext<RouterContext>()({     
     component: () => {

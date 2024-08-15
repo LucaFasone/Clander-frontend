@@ -31,13 +31,23 @@ export async function getPaginatedEvents(page = 0) {
     return data
 
 }
-
 export async function deleteEventById({ Id }: { Id: number }) {
     const res = await api.calendar.event[":id"].$delete({ param: { id: String(Id) } });
     if (!res.ok) {
         throw new Error('Errore nella cancellazione dell\'evento');
     }
     return res.json();
+}
+
+
+export async function getEventFromMonth( page = 0,MonthNumber: number) {
+    const res = await api.calendar.month[':monthNumber'].page[':pageNumber'].$get({ param: { monthNumber: String(MonthNumber), pageNumber: String(page) } });
+    if (!res.ok) {
+        throw new Error("Server error");
+    }
+    const data = await res.json();
+    return data;
+    
 }
 
 export const userQueryOptions = queryOptions({
