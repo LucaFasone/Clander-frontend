@@ -1,32 +1,54 @@
 import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogHeader,
-    DialogTitle,
-    DialogTrigger,
-  } from "@/components/ui/dialog"
-  import From from '@/components/From';
-import { Button } from "@/components/ui/button";
-  
-function DialogWrapper({selectedDay, selectedEndDay}: {selectedDay: Date, selectedEndDay: Date | undefined}) {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
+import From from '@/components/From';
+import { formType } from "../../../sharedTypes";
+import { useState } from "react";
+import { CalendarForm } from "./ui/test";
+
+
+
+type DialogWrapperProps = formType & {
+  JsxButton: JSX.Element;
+  resetSelection: () => void;
+};
+function DialogWrapper({ date, dateEnd, currentMonth, currentPage, title, description, eventId, activeReminder, JsxButton, resetSelection }: DialogWrapperProps) {
+  function renderDialogTitle() {
+    if (eventId) {
+      return <DialogTitle>{dateEnd == undefined ? 'Modifica l evento per il giorno ' + date.toLocaleDateString() : 'Modifica l evento per i giorni ' + date.toLocaleDateString() + ' - ' + dateEnd.toLocaleDateString()}</DialogTitle>
+    } else {
+      return <DialogTitle>{dateEnd == undefined ? 'Aggiungi un evento per il giorno ' + date.toLocaleDateString() : 'Aggiungi un evento per i giorni ' + date.toLocaleDateString() + ' - ' + dateEnd.toLocaleDateString()}</DialogTitle>
+    }
+  }
   return (
-    <Dialog>
-    <DialogTrigger asChild>
-      <Button>Aggingi Evento</Button>
-    </DialogTrigger>
-    <DialogContent>
-      <DialogHeader>
-        <DialogTitle>{selectedEndDay == undefined ?'Aggiungi un evento per il giorno ' + selectedDay.toLocaleDateString(): 'Aggiungi un evento per i giorni ' + selectedDay.toLocaleDateString() + ' - ' + selectedEndDay.toLocaleDateString() }</DialogTitle>
-        <DialogDescription>
-        <From 
-          date={selectedDay}
-          dateEnd={selectedEndDay}
-        />
-        </DialogDescription>
-      </DialogHeader>
-    </DialogContent>
-  </Dialog>
+    <Dialog >
+      <DialogTrigger >
+        {JsxButton}
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          {renderDialogTitle()}
+          <DialogDescription>
+            <From
+              date={date}
+              dateEnd={dateEnd}
+              currentPage={currentPage}
+              currentMonth={currentMonth}
+              title={title}
+              description={description}
+              eventId={eventId}
+              activeReminder={activeReminder}
+              resetSelection={resetSelection}
+              />
+          </DialogDescription>
+        </DialogHeader>
+      </DialogContent>
+    </Dialog>
   )
 }
 

@@ -58,8 +58,16 @@ function Calendar({
         IconLeft: ({ ...props }) => <ChevronLeft className="h-4 w-4" />,
         IconRight: ({ ...props }) => <ChevronRight className="h-4 w-4" />,
       }}
-     
-      modifiersClassNames={{ from: '!rounded-l-full', to: "!rounded-r-full", fullRange: 'bg-gray-400 !w-[50px] !rounded-none', progress: '!bg-blue-400', completed: '!bg-green-400', late: '!bg-red-400'}}
+      modifiersClassNames={{
+        selected: '!bg-blue-400',
+        from: '!rounded-l-full',
+        to: "!rounded-r-full",
+        fullRange: 'bg-gray-400 !w-[47px] !rounded-none',
+        selectedRange: '!bg-blue-400 !w-[47px] !rounded-none',
+        completed: '!bg-green-400',
+        late: '!bg-red-400',
+        currentDaySelected: '!bg-[#46b59bbd] text-white',
+      }}
       {...props}
 
     />

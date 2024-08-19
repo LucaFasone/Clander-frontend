@@ -10,6 +10,7 @@ export const usePagination = (monthNumber: number) => {
         queryKey: ['event', page, monthNumber],
         queryFn: () => getEventFromMonth(page, monthNumber),
         placeholderData: keepPreviousData,
+        staleTime: Infinity
     })
   
     async function getEventPage(selectedDay: Date | undefined) {

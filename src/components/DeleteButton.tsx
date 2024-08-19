@@ -2,11 +2,10 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "./ui/button";
 import { deleteEventById } from "@/lib/api";
 import { useEvents } from "@/hooks/useEvents";
+
+//TODO: Put this in useEvents
 export default function DeleteButton({ Id, resetSelection, currentPage, currentMonth}: { Id: number, resetSelection: () => void, currentPage: number, currentMonth: number}) {
-    
     const queryClient = useQueryClient();
-    console.log(currentPage);
-    
     const { getAllEventQueryKey } = useEvents();
     const mutation = useMutation({
         mutationFn: deleteEventById,

@@ -3,7 +3,6 @@ import PaginationWrapper from "./PaginationWrapper"
 
 function EventLIst({ page, month, setPage, paginatedEvent }: { page: number, month: number, setPage: any, paginatedEvent: any }) {
     return (
-
         <div>
             {paginatedEvent?.map((event: any) => (
                 <div key={event.id} className="">

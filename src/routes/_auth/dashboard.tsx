@@ -2,14 +2,12 @@ import { Calendar } from '@/components/ui/calendar'
 import { useCalendar } from '@/hooks/useCalendar';
 import { createFileRoute } from '@tanstack/react-router'
 import DialogWrapper from '@/components/DialogWrapper';
-import CalendarEvent from '@/components/CalendarEvent';
 import { Button } from '@/components/ui/button';
-import { getYear, isEqual } from 'date-fns';
+import { isEqual } from 'date-fns';
 import { useEvents } from '@/hooks/useEvents';
 import DeleteButton from '@/components/DeleteButton';
 import { usePagination } from '@/hooks/usePagination';
-import PaginationWrapper from '@/components/PaginationWrapper';
-import React, { useEffect, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import EventLIst from '@/components/EventLIst';
 
 export const Route = createFileRoute('/_auth/dashboard')({
@@ -22,34 +20,44 @@ function Dashboard() {
   const { user } = Route.useRouteContext()
   const { selectedDay, handleDayClick, handleDayClickKeyUp, handleDayClickKeyDown, selectedRange, resetSelection } = useCalendar();
   const { query } = useEvents();
-  //current selected Day page
   const { getEventPage, page, setPage, paginatedEvent } = usePagination(month);
   const { isPending, error, data } = query
-  const memo =  useMemo(() => renderButton(),[selectedDay])
+  const renderButtonMemo = useMemo(() => renderButton(), [selectedDay, currentPage, selectedRange])
 
   const eventDays = data?.events.filter(d => d.dateEnd == null).map(d => new Date(d.date));
   const rangedEvents = data?.events
     .filter(event => event.dateEnd !== null)
     .map(event => ({
       from: new Date(event.date),
-      to: new Date(event.dateEnd!) 
+      to: new Date(event.dateEnd!)
     })) || [];
 
-function renderButton() {
+  function renderButton() {
     if (selectedDay || selectedRange?.to) {
-      getEventPage(selectedDay).then((event) =>{
+      getEventPage(selectedDay || selectedRange!.from).then((event) => {
         setPage(event)
         setCurrentPage(event)
-        
-      }).catch((error) =>{
+      }).catch((error) => {
         console.log(error);
-        
+
       })
       const event = data?.events.find(e => (isEqual(e.date, selectedDay!) && e.dateEnd == null) || (isEqual(e.date, selectedRange?.from!) && isEqual(e.dateEnd!, selectedRange?.to!)));
-      if (event) {        
+      if (event) {
         return (
           <>
-            <Button className='mr-3'>Modifica Evento</Button>
+            <DialogWrapper
+              JsxButton={<Button className='mr-3'>Modifica evento</Button>}
+              eventId={event.id}
+              date={new Date(event.date)}
+              dateEnd={event.dateEnd ? new Date(event.dateEnd) : undefined}
+              description={event.description || undefined}
+              title={event.title}
+              activeReminder={event.activeReminder!}
+              currentMonth={month}
+              currentPage={currentPage}
+              resetSelection={resetSelection}
+
+            />
             <DeleteButton Id={event.id}
               resetSelection={resetSelection}
               currentPage={currentPage ? currentPage : -1}
@@ -60,14 +68,17 @@ function renderButton() {
       }
       return (
         <DialogWrapper
-          selectedDay={selectedDay! || selectedRange?.from}
-          selectedEndDay={selectedRange?.to}
+          JsxButton={<Button>Aggiungi Evento</Button>}
+          date={selectedDay! || selectedRange?.from}
+          dateEnd={selectedRange?.to}
+          currentMonth={month}
+          currentPage={currentPage ? currentPage : -1}
+          resetSelection={resetSelection}
         />
       );
 
     }
   }
-
   return (
     <div className='container flex flex-col items-center'>
       <h1 className='mt-2 text-3xl'>Dashboard</h1>
@@ -96,16 +107,6 @@ function renderButton() {
               currentDaySelected: selectedDay!,
               selectedRange: selectedRange!
             }}
-            modifiersClassNames={{
-              selected: '!bg-blue-400',
-              from: '!rounded-l-full',
-              to: "!rounded-r-full",
-              fullRange: 'bg-gray-400 !w-[47px] !rounded-none',
-              selectedRange: '!bg-blue-400 !w-[47px] !rounded-none',
-              completed: '!bg-green-400',
-              late: '!bg-red-400',
-              currentDaySelected: '!bg-[#46b59bbd] text-white',
-            }}
             footer={
               <>
                 <div className="flex justify-center">
@@ -113,13 +114,14 @@ function renderButton() {
                 </div>
                 <div className="">
                   <div className="mt-4 flex justify-start w-1/2">
-                    {memo}
+                    {renderButtonMemo}
                   </div>
                 </div>
               </>
             }
             onMonthChange={(selectedMonth) => {
               setMonth(selectedMonth.getMonth() + 1);
+              setPage(0);
               resetSelection()
             }}
           />
@@ -137,6 +139,7 @@ function renderButton() {
         </div>
       </div>
     </div>
+
 
   );
 

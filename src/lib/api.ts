@@ -1,6 +1,7 @@
 import { hc } from 'hono/client'
 import { keepPreviousData, queryOptions } from "@tanstack/react-query"
 import { type ApiRoutes } from "../../../index"
+import { Event } from '@/lib/types';
 
 const client = hc<ApiRoutes>('/')
 export const api = client.api
@@ -47,6 +48,16 @@ export async function getEventFromMonth( page = 0,MonthNumber: number) {
     }
     const data = await res.json();
     return data;
+    
+}
+export async function updateEvent({Id,Event} : {Id: number, Event: Event}) {
+    const res = await api.modify.$put({json: {eventId: Id, title: Event.title, description: Event.description, date: Event.date, dateEnd: Event.dateEnd, activeReminder: Event.activeReminder}});
+    if (!res.ok) {
+        throw new Error("Server error");
+    }
+    const data = await res.json();
+    return data
+
     
 }
 
