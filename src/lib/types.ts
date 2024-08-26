@@ -5,7 +5,7 @@ export type Event = {
     dateEnd: Date | undefined;
     activeReminder: boolean;
 };
-export type DatabaseEvents  = {
+export type DatabaseEvents = {
     date: string;
     id: number;
     title: string;

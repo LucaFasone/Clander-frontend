@@ -1,19 +1,30 @@
 import * as React from "react"
 import { ChevronLeft, ChevronRight } from "lucide-react"
-import { DayPicker } from "react-day-picker"
+import { DateRange, DayPicker } from "react-day-picker"
 
 import { cn } from "@/lib/utils"
 import { buttonVariants } from "@/components/ui/button"
 
-export type CalendarProps = React.ComponentProps<typeof DayPicker> & { isDisabled: boolean }
+export type CalendarProps = React.ComponentProps<typeof DayPicker> & {
+  isDisabled: boolean,
+  rangedEvents?: { from: Date, to: Date }[],
+  currentSelectedDay?: Date,
+  currentSelectedRange?: DateRange | undefined,
+}
 
 function Calendar({
   className,
   classNames,
   showOutsideDays = true,
-  mode="multiple",
+  mode = "multiple",
+  rangedEvents,
+  currentSelectedDay,
+  currentSelectedRange,
+  isDisabled = false,
   ...props
-}: CalendarProps,isDisabled=false) {
+}: CalendarProps) {
+
+    
 
   return (
     <DayPicker
@@ -38,7 +49,7 @@ function Calendar({
         row: "flex w-full mt-2",
         cell: "h-10 w-12 text-center text-sm p-0 relative [&:has([aria-selected].day-range-end)]:rounded-r-md [&:has([aria-selected].day-outside)]:bg-neutral-100/50  first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md focus-within:relative focus-within:z-20 dark:[&:has([aria-selected].day-outside)]:bg-neutral-800/50 dark:[&:has([aria-selected])]:bg-neutral-800",
         day: cn(
-          buttonVariants({ variant: "ghost" }),
+          buttonVariants(isDisabled ? { variant: "disabled" } : { variant: "ghost" }),
           "h-9 w-9 p-0 font-normal aria-selected:opacity-100 ",
           isDisabled ? "cursor-default" : "cursor-pointer",
         ),
@@ -58,16 +69,22 @@ function Calendar({
         IconLeft: ({ ...props }) => <ChevronLeft className="h-4 w-4" />,
         IconRight: ({ ...props }) => <ChevronRight className="h-4 w-4" />,
       }}
+      modifiers={{
+        fullRange: rangedEvents!,
+        from: rangedEvents?.filter(range => range.from !== undefined).map(range => range.from!) || [],
+        to: rangedEvents?.filter(range => range.to !== undefined).map(range => range.to!) || [],
+        currentDaySelected: currentSelectedDay!,
+        selectedRange: currentSelectedRange!
+      }}
       modifiersClassNames={{
         selected: '!bg-blue-400',
         from: '!rounded-l-full',
         to: "!rounded-r-full",
         fullRange: 'bg-gray-400 !w-[47px] !rounded-none',
         selectedRange: '!bg-blue-400 !w-[47px] !rounded-none',
-        completed: '!bg-green-400',
-        late: '!bg-red-400',
         currentDaySelected: '!bg-[#46b59bbd] text-white',
       }}
+
       {...props}
 
     />

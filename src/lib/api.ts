@@ -23,12 +23,14 @@ export async function getAllSingleDayEvent() {
     const data = await res.json();
     return data;
 }
-export async function getPaginatedEvents(page = 0) {    
+export async function getPaginatedEvents(page = 0) {
     const res = await api.calendar[':pageNumber'].$get({ param: { pageNumber: String(page) } });
+
     if (!res.ok) {
         throw new Error("Server error");
     }
     const data = await res.json();
+
     return data
 
 }
@@ -41,24 +43,34 @@ export async function deleteEventById({ Id }: { Id: number }) {
 }
 
 
-export async function getEventFromMonth( page = 0,MonthNumber: number) {
-    const res = await api.calendar.month[':monthNumber'].page[':pageNumber'].$get({ param: { monthNumber: String(MonthNumber), pageNumber: String(page) } });
+export async function getEventFromMonth(page = 0, MonthNumber: number) {
+    const res = await api.calendar.month[':monthNumber'].page[':pageNumber'].$get({ param: { monthNumber: String(MonthNumber), pageNumber: String(page) } });    
     if (!res.ok) {
         throw new Error("Server error");
     }
     const data = await res.json();
     return data;
-    
+
 }
-export async function updateEvent({Id,Event} : {Id: number, Event: Event}) {
-    const res = await api.modify.$put({json: {eventId: Id, title: Event.title, description: Event.description, date: Event.date, dateEnd: Event.dateEnd, activeReminder: Event.activeReminder}});
+export async function updateEvent({ Id, Event }: { Id: number, Event: Event }) {
+    const res = await api.modify.$put({ json: { eventId: Id, title: Event.title, description: Event.description, date: Event.date, dateEnd: Event.dateEnd, activeReminder: Event.activeReminder } });
     if (!res.ok) {
         throw new Error("Server error");
     }
     const data = await res.json();
     return data
 
-    
+
+}
+
+export async function sharedEvent(Id: number, email:string,permissions:string) {
+    const res = await api.calendar.sharedTo.$post({json:{eventId: Id, email: email, permissions: permissions}})
+    if (!res.ok) {
+        throw new Error((await res.json()).error);
+    }
+    const data = await res.json();
+    return data
+
 }
 
 export const userQueryOptions = queryOptions({

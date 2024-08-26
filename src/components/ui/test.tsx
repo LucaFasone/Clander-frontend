@@ -21,7 +21,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
-import { toast } from "@/components/ui/use-toast"
+import { toast } from "@/hooks/use-toast"
 
 const FormSchema = z.object({
   dob: z.date({

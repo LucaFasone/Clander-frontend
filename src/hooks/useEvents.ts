@@ -4,13 +4,13 @@ import { Event } from '@/lib/types';
 
 export function useEvents() {
   const queryClient = useQueryClient();
+  // TODO: get all events from the CURRENT MONTH NOT ALL EVENT!!!
   const query = useQuery(getAllEventQueryOptions);
   const getAllEventQueryKey = getAllEventQueryOptions.queryKey;
 
   const mutation = useMutation({
     mutationFn: updateEvent,
     onSuccess: (data, variables) => {
-
       queryClient.setQueryData(getAllEventQueryKey, (oldData: any) => {
         if (!oldData) return oldData;
 
@@ -21,7 +21,7 @@ export function useEvents() {
               return {
                 ...event,
                 date: variables.Event.date,
-                dateEnd: variables.Event.dateEnd ?? null, 
+                dateEnd: variables.Event.dateEnd ?? null,
                 title: variables.Event.title,
                 activeReminder: variables.Event.activeReminder,
                 description: variables.Event.description,

@@ -5,9 +5,11 @@ import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 import { cn } from "@/lib/utils";
 import { CalendarIcon } from "lucide-react";
 
-function PoppoverCalendarField({ field }: { field: any }) {
+
+function PoppoverCalendarField({ field, disabled}: { field: any, disabled?: boolean}) {
+    
     return (
-        <Popover modal={true}>
+        <Popover modal={true} >
             <PopoverTrigger asChild>
                 <Button
                     variant={"outline"}
@@ -19,17 +21,18 @@ function PoppoverCalendarField({ field }: { field: any }) {
                     {field.state.value ? (
                         format(field.state.value, "PPP")
                     ) : (
-                        <span>Pick a date</span>
+                        <span>{disabled ? "":"Pick a date"}</span>
                     )}
                     <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                 </Button>
             </PopoverTrigger>
             <PopoverContent>
                 <Calendar
-                    isDisabled={false}
-                    onDayClick={(day) => {
-                        field.handleChange(day);
-                    }}
+                    isDisabled={disabled || false}
+                    onDayClick={!disabled ? (day) =>{
+                        field.handleChange(day)
+                    } 
+                    : undefined}
                     selected={field.state.value}
                     classNames={{
                         months: '',

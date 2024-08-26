@@ -14,6 +14,7 @@ import { Route as rootRoute } from './routes/__root'
 import { Route as AuthImport } from './routes/_auth'
 import { Route as LandingPageImport } from './routes/LandingPage'
 import { Route as IndexImport } from './routes/index'
+import { Route as AuthUserPageImport } from './routes/_auth/userPage'
 import { Route as AuthDashboardImport } from './routes/_auth/dashboard'
 
 // Create/Update Routes
@@ -31,6 +32,11 @@ const LandingPageRoute = LandingPageImport.update({
 const IndexRoute = IndexImport.update({
   path: '/',
   getParentRoute: () => rootRoute,
+} as any)
+
+const AuthUserPageRoute = AuthUserPageImport.update({
+  path: '/userPage',
+  getParentRoute: () => AuthRoute,
 } as any)
 
 const AuthDashboardRoute = AuthDashboardImport.update({
@@ -70,6 +76,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthDashboardImport
       parentRoute: typeof AuthImport
     }
+    '/_auth/userPage': {
+      id: '/_auth/userPage'
+      path: '/userPage'
+      fullPath: '/userPage'
+      preLoaderRoute: typeof AuthUserPageImport
+      parentRoute: typeof AuthImport
+    }
   }
 }
 
@@ -78,7 +91,7 @@ declare module '@tanstack/react-router' {
 export const routeTree = rootRoute.addChildren({
   IndexRoute,
   LandingPageRoute,
-  AuthRoute: AuthRoute.addChildren({ AuthDashboardRoute }),
+  AuthRoute: AuthRoute.addChildren({ AuthDashboardRoute, AuthUserPageRoute }),
 })
 
 /* prettier-ignore-end */
@@ -103,11 +116,16 @@ export const routeTree = rootRoute.addChildren({
     "/_auth": {
       "filePath": "_auth.tsx",
       "children": [
-        "/_auth/dashboard"
+        "/_auth/dashboard",
+        "/_auth/userPage"
       ]
     },
     "/_auth/dashboard": {
       "filePath": "_auth/dashboard.tsx",
+      "parent": "/_auth"
+    },
+    "/_auth/userPage": {
+      "filePath": "_auth/userPage.tsx",
       "parent": "/_auth"
     }
   }

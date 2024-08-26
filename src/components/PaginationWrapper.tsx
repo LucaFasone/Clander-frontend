@@ -5,11 +5,11 @@ function PaginationWrapper({ page, setPageNext, setPagePrev }: { page: number, s
         <Pagination>
             <PaginationContent>
                 <PaginationItem>
-                    <PaginationPrevious href="#" onClick={() => setPageNext(page)} />
+                    <PaginationPrevious href="#" onClick={() => setPagePrev(page)} />
                 </PaginationItem>
                 <PaginationLink isActive className='bg-blue-400 hover:bg-blue-400'>{page}</PaginationLink>
                 <PaginationItem>
-                    <PaginationNext href="#" onClick={() => setPagePrev(page)} />
+                    <PaginationNext href="#" onClick={() => setPageNext(page)} />
                 </PaginationItem>
             </PaginationContent>
         </Pagination>
