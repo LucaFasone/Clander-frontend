@@ -4,8 +4,8 @@ import { compareAsc } from "date-fns";
 import { useEffect, useState } from "react";
 
 export const usePagination = (monthNumber: number) => {
+    //maybe it useless now
     const [page, setPage] = useState(0)
-    
     const queryClient = useQueryClient()
     const { data, isPending, isSuccess, fetchStatus} = useQuery({
         queryKey: ['event', page, monthNumber],
@@ -14,11 +14,6 @@ export const usePagination = (monthNumber: number) => {
         staleTime: Infinity
     })
     useEffect(() =>{
-        console.log(data)
-        console.log(page)
-        console.log(fetchStatus);
-        
-
     },[page])
   
     async function getEventPage(selectedDay: Date | undefined) {

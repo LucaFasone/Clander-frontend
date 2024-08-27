@@ -15,8 +15,8 @@ const getUserProfile = async () => {
     return data
 
 }
-export async function getAllSingleDayEvent() {
-    const res = await api.calendar.$get();
+export async function getAllSingleDayEvent(month: number) {
+    const res = await api.calendar[':month'].$get({param: {month: String(month)}});
     if (!res.ok) {
         throw new Error("Server error");
     }
@@ -79,8 +79,3 @@ export const userQueryOptions = queryOptions({
     staleTime: Infinity,
 })
 
-export const getAllEventQueryOptions = queryOptions({
-    queryKey: ['get-all-single-day-event'],
-    queryFn: getAllSingleDayEvent,
-    staleTime: Infinity
-})

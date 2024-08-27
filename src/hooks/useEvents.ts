@@ -1,13 +1,18 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { api, getAllEventQueryOptions, updateEvent } from '@/lib/api';
+import { queryOptions, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { api, getAllSingleDayEvent, updateEvent } from '@/lib/api';
 import { Event } from '@/lib/types';
 
-export function useEvents() {
+export function useEvents(month: number) {
   const queryClient = useQueryClient();
-  // TODO: get all events from the CURRENT MONTH NOT ALL EVENT!!!
-  const query = useQuery(getAllEventQueryOptions);
-  const getAllEventQueryKey = getAllEventQueryOptions.queryKey;
+  const getAllEventQueryOptions = queryOptions({
+    queryKey: ['get-all-single-day-event', month],
+    queryFn: () => getAllSingleDayEvent(month),
+    staleTime: Infinity
+  })
 
+  const query = useQuery(getAllEventQueryOptions)
+  const getAllEventQueryKey=getAllEventQueryOptions.queryKey;
+  
   const mutation = useMutation({
     mutationFn: updateEvent,
     onSuccess: (data, variables) => {
