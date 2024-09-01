@@ -14,4 +14,4 @@ export type DatabaseEvents = {
     createAt: string | null;
     createBy: string;
     dateEnd: string | null;
-}[] | undefined
+} | undefined

@@ -4,9 +4,9 @@ import { deleteEventById } from "@/lib/api";
 import { useEvents } from "@/hooks/useEvents";
 
 //TODO: Put this in useEvents
-export default function DeleteButton({ Id, resetSelection, currentPage, currentMonth}: { Id: number, resetSelection: () => void, currentPage: number, currentMonth: number}) {
+export default function DeleteButton({ Id, currentMonth}: { Id: number, resetSelection: () => void, currentPage: number, currentMonth: number}) {
     const queryClient = useQueryClient();
-    const { getAllEventQueryKey } = useEvents();
+    const { getAllEventQueryKey } = useEvents(currentMonth);
     const mutation = useMutation({
         mutationFn: deleteEventById,
         onSuccess: () => {
@@ -15,8 +15,6 @@ export default function DeleteButton({ Id, resetSelection, currentPage, currentM
                     ...event,
                     events: event!.events?.filter((e) => e.id !== Id),
                 }))
-           resetSelection()
-           queryClient.invalidateQueries({queryKey:['event', currentPage, currentMonth]});
         }
     })  
     return (
