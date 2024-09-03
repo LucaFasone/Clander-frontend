@@ -1,20 +1,12 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import { Button } from "@/components/ui/button"
-import { Calendar } from "@/components/ui/calendar"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { Textarea } from "@/components/ui/textarea"
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
-import { CalendarIcon, ChevronLeft, ChevronRight, PlusCircle, Share2, Edit, Trash2, Users } from "lucide-react"
-import { format, parse, startOfMonth, endOfMonth, isWithinInterval, addMonths, subMonths, parseISO } from "date-fns"
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { ChevronLeft, ChevronRight, Share2, Edit, Trash2 } from "lucide-react"
+import { addMonths, subMonths } from "date-fns"
 import { useEvents } from '@/hooks/useEvents'
-import { usePagination } from '@/hooks/usePagination'
-import From from '@/components/From';
-import { formType } from '../../../../sharedTypes'
+import Form from '@/components/From';
 import { DatabaseEvents } from '@/lib/types'
 import { X } from 'lucide-react';
 import { Skeleton } from "@/components/ui/skeleton"
@@ -25,9 +17,15 @@ export const Route = createFileRoute('/_auth/dashboard')({
 })
 
 function Dashboard() {
+  //remove all the repetive event just put 'selectedEvent'
   const [currentMonth, setCurrentMonth] = useState(new Date())
   const [currentPage, setCurrentPage] = useState(1)
   const [editingEvent, setEditingEvent] = useState<DatabaseEvents>(undefined)
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
+  const [eventToDelete, setEventToDelete] = useState<DatabaseEvents>(undefined)
+  const [eventToShare, setEventToShare] = useState<DatabaseEvents>(undefined)
+  const [isShareDialogOpen, setIsShareDialogOpen] = useState(false)
+
   const eventsPerPage = 6
   const { query } = useEvents(currentMonth.getMonth());
   const { data, error, isPending } = query
@@ -128,11 +126,11 @@ function Dashboard() {
                       <Edit className="w-4 h-4 mr-2" />
                       Modifica
                     </Button>
-                    <Button variant="outline" size="sm" onClick={() => console.log("s")}>
+                    <Button variant="outline" size="sm" onClick={() => { setIsShareDialogOpen(true); setEventToShare(event) }}>
                       <Share2 className="w-4 h-4 mr-2" />
                       Condividi
                     </Button>
-                    <Button variant="outline" size="sm" onClick={() => { console.log(event) }}>
+                    <Button variant="outline" size="sm" onClick={() => { setIsDeleteDialogOpen(true); setEventToDelete(event) }}>
                       <Trash2 className="w-4 h-4 mr-2" />
                       Elimina
                     </Button>
@@ -182,19 +180,59 @@ function Dashboard() {
                 </Button>
               </div>}
           </div>
-          <From
+          <Form
             key={editingEvent?.id}
             date={editingEvent ? new Date(editingEvent.date) : undefined}
             dateEnd={editingEvent?.dateEnd ? new Date(editingEvent.dateEnd) : undefined}
             title={editingEvent?.title}
             description={editingEvent?.description || undefined}
             eventId={editingEvent?.id || undefined}
-            currentMonth={ editingEvent ? new Date(editingEvent.date).getMonth() : undefined}
-            reset={editingEvent ? () => setEditingEvent(undefined) : undefined}
+            currentMonth={editingEvent ? new Date(editingEvent.date).getMonth() : undefined}
+            reset={() => setEditingEvent(undefined)}
           />
         </div>
       </section>
-    
+      <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Conferma eliminazione</DialogTitle>
+            <DialogDescription>
+              Sei sicuro di voler eliminare l'evento "{eventToDelete?.title}"? Questa azione non può essere annullata.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsDeleteDialogOpen(false)}>Annulla</Button>
+            <DeleteButton
+              Id={eventToDelete?.id!}
+              currentMonth={currentMonth.getMonth()}
+              resetSelection={() => { setIsDeleteDialogOpen(false); setEventToDelete(undefined) }}
+            />
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isShareDialogOpen} onOpenChange={setIsShareDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Condivisione dell evento</DialogTitle>
+            <DialogDescription>
+              Stai condividendo l'evento "{eventToShare?.title}"
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <div className="w-full">
+              <Form
+                isSharing={true}
+                eventId={eventToShare?.id}
+                reset={() => { setIsShareDialogOpen(false); setEventToShare(undefined); }}
+              />
+            </div>
+
+          </DialogFooter>
+        </DialogContent>
+
+      </Dialog>
+
     </main>
 
   )

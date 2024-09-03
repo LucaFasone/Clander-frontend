@@ -1,10 +1,11 @@
 import { queryOptions, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { api, deleteEventById, getAllSingleDayEvent, updateEvent } from '@/lib/api';
 import { Event } from '@/lib/types';
+
 export function useEvents(month: number) {
 
   const queryClient = useQueryClient();
-  const getAllEventQueryOptions = queryOptions({
+  const getAllEventQueryOptions = (month: number) => queryOptions({
     queryKey: ['get-all-single-day-event', month],
     queryFn: () => getAllSingleDayEvent(month),
     staleTime: Infinity
@@ -14,13 +15,12 @@ export function useEvents(month: number) {
     return events.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
   };
 
-  const query = useQuery(getAllEventQueryOptions)
-  const getAllEventQueryKey = getAllEventQueryOptions.queryKey;
+  const query = useQuery(getAllEventQueryOptions(month))
+  const getAllEventQueryKey = getAllEventQueryOptions(month).queryKey;
 
-  //in all of this code is intedent to not use queryClient.invalidateQuery/refetchQueries bc i just wanted to update the chace and not refetch the data from the server
-  //this should be faster but the code is more verbose and harder to read/maintain
-
-  const mutation = useMutation({
+  const updateMutation = useMutation({
+    //in all of this code is intedent to not use queryClient.invalidateQuery/refetchQueries bc i just wanted to update the Cache and not refetch the data from the server
+    //this should be faster but the code is more verbose and harder to read/maintain
     mutationFn: updateEvent,
     onSuccess: (data, variables) => {
       const updatedMonth = variables.Event.date.getMonth();
@@ -85,23 +85,17 @@ export function useEvents(month: number) {
     if (!res.ok) {
       throw new Error('Evento non aggiunto');
     }
-    const existingEvent = await queryClient.ensureQueryData(queryOptions({
-      queryKey: ['get-all-single-day-event', event.date.getMonth()],
-      queryFn: () => getAllSingleDayEvent(event.date.getMonth()),
-      staleTime: Infinity
-    }));
-
-    queryClient.setQueryData(['get-all-single-day-event', event.date.getMonth()], ({
+    const existingEvent = await queryClient.ensureQueryData(getAllEventQueryOptions(event.date.getMonth()));
+    queryClient.setQueryData(getAllEventQueryOptions(event.date.getMonth()).queryKey, ({
       ...existingEvent,
       events: [...existingEvent.events, await res.json()].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
     }));
 
   };
 
-  const updateEventAndRefreshData = (Id: number, Event: Event) => {
-    mutation.mutate({ Id, Event });
-
+  const updateEventMutation = (Id: number, Event: Event) => {
+    updateMutation.mutate({ Id, Event });
   };
 
-  return { query, addEvent, getAllEventQueryKey, updateEventAndRefreshData };
+  return { query, addEvent, getAllEventQueryKey, updateEventMutation };
 }
