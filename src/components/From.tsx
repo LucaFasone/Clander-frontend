@@ -1,7 +1,6 @@
 
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-
 import { zodValidator } from '@tanstack/zod-form-adapter'
 import { createEvent, formType, shareEvent } from './../../../sharedTypes.ts'
 import { Field, useForm } from '@tanstack/react-form';
@@ -11,228 +10,264 @@ import { DialogTrigger } from './ui/dialog.tsx';
 import { useEvents } from '@/hooks/useEvents.ts';
 import PoppoverCalendarField from './PoppoverCalendarField.tsx';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select.tsx';
-import { sharedEvent } from '@/lib/api.ts';
-
+import { sendNotifyForShare } from '@/lib/api.ts';
+import { CalendarIcon, PlusCircle } from 'lucide-react';
+import { Textarea } from './ui/textarea.tsx';
+import { Popover, PopoverContent, PopoverTrigger } from './ui/popover.tsx';
+import { format, isEqual } from 'date-fns';
+import { Calendar } from './ui/calendar.tsx';
+import { useEffect, useState } from 'react';
+import { Event } from '@/lib/types.ts';
+import { useToast } from '@/hooks/use-toast.ts';
 
 type FromProps = formType & {
-  resetSelection: () => void;
   isSharing?: boolean;
+  reset: any
 };
 
-function From({ date, dateEnd, currentPage, currentMonth, title, description, activeReminder, eventId, resetSelection, isSharing }: FromProps) {
-  const { addEvent, updateEventAndRefreshData } = useEvents();
+function Form({ date, dateEnd, reset, currentMonth, title, description, activeReminder, eventId, isSharing }: FromProps) {
+  //const { addEvent, updateEventAndRefreshData } = useEvents(currentMonth || new Date().getMonth());
+
+  const [dateForm, setDate] = useState<{ from: Date; to?: Date }>()
+  const [userEmail, setUserEmail] = useState<boolean>(false)
+  const { addEvent, updateEventMutation } = useEvents(currentMonth || new Date().getMonth());
+  const { toast } = useToast()
+
   const form = useForm({
     defaultValues: {
-      title: title || "",
-      description: description || "",
-      date: date || null,
-      dateEnd: dateEnd,
-      activeReminder: activeReminder || false,
+      title: "",
+      description: "",
+      date: dateForm,
+      activeReminder: false,
       userSharedEvent: "",
-      permissions: "all"
+      permissions: ""
     },
     async onSubmit({ value }) {
+      const Event: Event = {
+        title: value.title,
+        description: value.description,
+        date: value.date?.from || dateForm?.from!,
+        dateEnd: value.date?.to || dateForm?.to,
+        activeReminder: value.activeReminder,
+      }
       try {
         if (isSharing && eventId) {
-          await sharedEvent(eventId, value.userSharedEvent, value.permissions)
+          await sendNotifyForShare(eventId, value.userSharedEvent, value.permissions)
+          toast({
+            title: "Shared Event successfully",
+          })
         }
         if (!eventId) {
-          await addEvent(value, currentPage!, currentMonth);
+          await addEvent(Event)
+          toast({
+            title: "Added Event successfully",
+          })
         }
         if (!isSharing && eventId) {
-          updateEventAndRefreshData(eventId, value, currentPage!, currentMonth);
+          updateEventMutation(eventId, Event)
+          toast({
+            title: "Updated Event successfully",
+          })
         }
-        resetSelection()
 
       } catch (err) {
-        
         alert(err);
-
       }
+      window.scrollTo(0, 0)
+      form.reset()
+      reset()
+      setDate(undefined)
+      setUserEmail(false)
     }
   });
+
+  useEffect(() => {
+    if (eventId && !isSharing) {
+      setDate({ from: date!, to: dateEnd || undefined });
+      form.setFieldValue('title', title || "");
+      form.setFieldValue('description', description || "");
+      form.setFieldValue('activeReminder', activeReminder || false);
+    }
+  }, [])
+
+
+
   return (
-    <div>
-      <form
-        onSubmit={(e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          form.handleSubmit();
-        }}>
-        <div className="my-3">
-          <Label>
-            Titolo Evento
-          </Label>
-          <form.Field
-            name="title"
-            validatorAdapter={zodValidator()}
-            validators={{
-              onChange: createEvent.shape.title,
-            }}
-            children={(field) => (
-              <Input
-                className='mt-2'
-                disabled={isSharing}
-                name={field.name}
-                placeholder={field.name.charAt(0).toUpperCase() + field.name.slice(1)}
-                value={field.state.value}
-                onBlur={field.handleBlur}
-                onChange={(e) => field.handleChange(e.target.value)}
-              />
-            )}
-          />
-        </div>
-        <div className="my-3">
-          <Label>
-            Descrizione Evento
-          </Label>
-          <form.Field
-            name="description"
-            children={(field) => (
-              <Input
-                disabled={isSharing}
-                className='mt-2'
-                name={field.name}
-                placeholder={field.name.charAt(0).toUpperCase() + field.name.slice(1)}
-                value={field.state.value}
-                onBlur={field.handleBlur}
-                onChange={(e) => field.handleChange(e.target.value)}
-              />
-            )}
-          />
-        </div>
-        <div className="my-3 flex items-center ">
-          <form.Field
-            name="activeReminder"
-            children={(field) => (
-              <Checkbox
-                id='reminder'
-                className='mr-2 w-[16px] h-[16px]'
-                name={field.name}
-                disabled={isSharing}
-                onBlur={field.handleBlur}
-                checked={field.state.value}
-                onCheckedChange={(checked) => {
-                  if (checked === 'indeterminate') {
-                    field.handleChange(false);
-                  } else {
-                    field.handleChange(checked);
-                  }
-
-                }}
-              />
-            )}
-          />
-          <Label htmlFor='reminder'>
-            Reminder
-          </Label>
-        </div>
-
-        {eventId && (
-          <div className="my-3">
-            <Label>
-              Data Inizio
-            </Label>
+    <form className="space-y-4"
+      onSubmit={(e) => {
+        e.preventDefault()
+        e.stopPropagation()
+        form.handleSubmit()
+      }}>
+      {!isSharing &&
+        <>
+          <div className="space-y-2">
+            <Label htmlFor="title">Titolo Evento</Label>
             <form.Field
-              name="date"
-              children={(field) => {
-                return (
-                  <PoppoverCalendarField field={field} disabled={isSharing} />
-                )
-              }}
-
-            />
-          </div>
-        )}
-        {eventId && (
-          <div className="my-3">
-            <Label>
-              Data Fine
-            </Label>
-            <form.Field
-              name="dateEnd"
-              children={(field) => {
-                return (
-                  <PoppoverCalendarField field={field} disabled={isSharing} />
-                )
-              }}
-            />
-          </div>
-        )}
-        {isSharing && (
-          <div className="my-3">
-            <Label>
-              Email dell utente a cui condividere l'evento
-            </Label>
-            <form.Field
+              name='title'
               validatorAdapter={zodValidator()}
               validators={{
-                onChange: shareEvent.shape.sharedToEmail,
+                onChange: createEvent.shape.title
               }}
-              name="userSharedEvent"
+              children={(field) => {
+                return (
+                  <div>
+                    <Input id="title" placeholder="Inserisci il titolo dell'evento" onChange={(e) => field.handleChange(e.target.value)} value={form.getFieldValue('title')} />
+                    {field.state.meta.errors ? (
+                      <em role="alert">{field.state.meta.errors.join(', ')}</em>
+                    ) : null}
+                  </div>
+                )
+              }}
+            />
+          </div>
+          <div className="space-y-2">
+            <Label>Intervallo Date Evento</Label>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  id="date"
+                  variant={"outline"}
+                  className={`w-full justify-start text-left font-normal ${!dateForm && "text-muted-foreground"}`}>
+                  <CalendarIcon className="mr-2 h-4 w-4" />
+                  {dateForm?.from ? (
+                    dateForm.to ? (
+                      <>
+                        {format(dateForm.from, "d MMMM yyyy")} - {format(dateForm.to, "d MMMM yyyy")}
+                      </>
+                    ) : (
+                      format(dateForm.from, "d MMMM yyyy")
+                    )
+                  ) : (
+                    <span>Seleziona una data</span>
+                  )}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <form.Field
+                  name='date'
+                  children={(field) => {
+                    return (
+                      <Calendar
+                        initialFocus
+                        mode="range"
+                        selected={dateForm}
+                        onSelect={(value) => { field.handleChange(value); setDate(value) }}
+                        numberOfMonths={2}
+                      />
+                    )
+                  }}
+                />
+
+              </PopoverContent>
+            </Popover>
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="description">Descrizione Evento</Label>
+            <form.Field
+              name='description'
+              children={(field) => {
+                return (
+                  <Textarea id="description" placeholder="Inserisci la descrizione dell'evento" onChange={(e) => { field.handleChange(e.target.value) }} value={form.getFieldValue('description')} />
+                )
+              }}
+            />
+          </div>
+          <div className="space-y-2 flex items-center">
+            <form.Field
+              name="activeReminder"
               children={(field) => (
-                <Input
-                  autoFocus={true}
-                  className='mt-2'
-                  name={field.name}
-                  placeholder={"example@domain.com"}
-                  value={field.state.value}
-                  onBlur={field.handleBlur}
-                  onChange={(e) => field.handleChange(e.target.value)}
+                <input
+                  type="checkbox"
+                  id="reminder"
+                  className="rounded border-gray-300 text-primary focus:ring-primary mr-2 "
+                  onChange={(e) => field.handleChange(e.target.checked)}
+                  checked={form.getFieldValue('activeReminder')}
                 />
               )}
             />
-          </div>
-        )}
-        {isSharing && (
-          <div className="">
-            <Label>
-              Permessi
+            <Label htmlFor='reminder' className='!mt-0'>
+              Reminder
             </Label>
-            <form.Field
-              name="permissions"
-              validatorAdapter={zodValidator()}
-              validators={
-                {
-                  onChange: shareEvent.shape.permission,
-                  onBlur: shareEvent.shape.permission
-                }
-              }
-              children={(field) => (
-
-                <Select
-                  defaultValue='all'
-                  onValueChange={(e) => field.handleChange(e)}>
-                  <SelectTrigger className="w-[180px] mb-3">
-                    <SelectValue placeholder="Permissions" />
-                  </SelectTrigger>
-                  <SelectContent >
-                    <SelectItem value="all">All</SelectItem>
-                    <SelectItem value="view">Only view</SelectItem>
-                    <SelectItem value="modify">Modify</SelectItem>
-                    <SelectItem value="sharable">Share</SelectItem>
-                  </SelectContent>
-                </Select>
-              )}
-            />
           </div>
-        )}
+        </>
+      }
 
+      {isSharing && <div className="space-y-0.5">
+        <Label htmlFor="sharedWith">Condividi con (email)</Label>
+        <form.Field
+          name='userSharedEvent'
+          validatorAdapter={zodValidator()}
+          validators={{
+            onChange: ({ value }) => {
+              if (value === "") {
+                return undefined;
+              }
+              return shareEvent.shape.sharedToEmail.safeParse(value).success
+                ? undefined
+                : 'Email non valida';
+            },
+          }}
+          children={(field) => {
+            return (
+              <div>
+                <Input id="sharedWith" type="email" placeholder="Inserisci l'email con cui condividere" onChange={(e) => { field.handleChange(e.target.value); e.target.value ? setUserEmail(true) : setUserEmail(false) }} />
+                {field.state.meta.errors ? (
+                  <em role="alert">{field.state.meta.errors.join(', ')}</em>
+                ) : null}
+              </div>
+            )
+          }}
+        />
+      </div>}
 
-        <form.Subscribe
-          selector={(state) => [state.canSubmit, state.isSubmitting]}
-          children={([canSubmit, isSubmitting]) => (
-            <DialogTrigger asChild>
-              <Button type="submit" disabled={!canSubmit}>
-                {isSubmitting ? '...' : 'Submit'}
-              </Button>
-            </DialogTrigger>
-
+      {userEmail && isSharing && <div className="space-y-0.5">
+        <Label>
+          Permessi
+        </Label>
+        <form.Field
+          name="permissions"
+          validatorAdapter={zodValidator()}
+          validators={
+            {
+              onChange: ({ value }) => value == "" ? 'scegli un permesso' : undefined
+            }
+          }
+          children={(field) => (
+            <div>
+              <Select
+                onValueChange={(e) => field.handleChange(e)}>
+                <SelectTrigger className="w-[180px] mb-3">
+                  <SelectValue placeholder="Permissions" />
+                </SelectTrigger>
+                <SelectContent >
+                  <SelectItem value="all">All</SelectItem>
+                  <SelectItem value="view">Only view</SelectItem>
+                  <SelectItem value="modify">Modify</SelectItem>
+                  <SelectItem value="sharable">Share</SelectItem>
+                </SelectContent>
+              </Select>
+              {field.state.meta.errors ? (
+                <em role="alert">{field.state.meta.errors.join(', ')}</em>
+              ) : null}
+            </div>
           )}
         />
-      </form >
-    </div >
+      </div>}
+
+      <form.Subscribe
+        selector={(state) => [state.canSubmit, state.isSubmitting]}
+        children={([canSubmit, isSubmitting]) => (
+          <Button type="submit" className='w-full' disabled={!canSubmit}>
+            <PlusCircle className="w-4 h-4 mr-2" />
+            {isSubmitting ? '...' : eventId ? 'Modifica evento' : 'Crea Evento'}
+          </Button>
+
+        )}
+      />
+
+    </form>
   )
 }
 
-export default From
+export default Form           

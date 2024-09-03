@@ -1,6 +1,7 @@
 import { createFileRoute, Link, Outlet, redirect } from '@tanstack/react-router'
 import Navbar from '@/components/Navbar'
 import { Button } from '@/components/ui/button'
+import { Toaster } from '@/components/ui/toaster'
 
 const Component = () => {
   const { user } = Route.useRouteContext()
@@ -24,6 +25,7 @@ const Component = () => {
         </Link>
       </Navbar >
       <Outlet />
+      <Toaster/>
     </>
   )
 }

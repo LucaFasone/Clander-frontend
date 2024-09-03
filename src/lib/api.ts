@@ -5,7 +5,7 @@ import { Event } from '@/lib/types';
 
 const client = hc<ApiRoutes>('/')
 export const api = client.api
-
+  //closure??
 const getUserProfile = async () => {
     const res = await api.me.$get()
     if (res.status === 401) {
@@ -15,8 +15,8 @@ const getUserProfile = async () => {
     return data
 
 }
-export async function getAllSingleDayEvent() {
-    const res = await api.calendar.$get();
+export async function getAllSingleDayEvent(month: number) {
+    const res = await api.calendar[':month'].$get({param: {month: String(month)}});
     if (!res.ok) {
         throw new Error("Server error");
     }
@@ -63,7 +63,7 @@ export async function updateEvent({ Id, Event }: { Id: number, Event: Event }) {
 
 }
 
-export async function sharedEvent(Id: number, email:string,permissions:string) {
+export async function sendNotifyForShare(Id: number, email:string,permissions:string) {
     const res = await api.calendar.sharedTo.$post({json:{eventId: Id, email: email, permissions: permissions}})
     if (!res.ok) {
         throw new Error((await res.json()).error);
@@ -79,8 +79,3 @@ export const userQueryOptions = queryOptions({
     staleTime: Infinity,
 })
 
-export const getAllEventQueryOptions = queryOptions({
-    queryKey: ['get-all-single-day-event'],
-    queryFn: getAllSingleDayEvent,
-    staleTime: Infinity
-})
