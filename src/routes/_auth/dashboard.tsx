@@ -1,9 +1,9 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { ChevronLeft, ChevronRight, Share2, Edit, Trash2 } from "lucide-react"
+import { ChevronLeft, ChevronRight, Share2, Edit, Trash2, Users } from "lucide-react"
 import { addMonths, subMonths } from "date-fns"
 import { useEvents } from '@/hooks/useEvents'
 import Form from '@/components/From';
@@ -11,13 +11,17 @@ import { DatabaseEvents } from '@/lib/types'
 import { X } from 'lucide-react';
 import { Skeleton } from "@/components/ui/skeleton"
 import DeleteButton from '@/components/DeleteButton'
-
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
+import { ws } from '@/lib/api'
+import { useQueryClient } from '@tanstack/react-query'
 export const Route = createFileRoute('/_auth/dashboard')({
   component: Dashboard
 })
 
 function Dashboard() {
-  //remove all the repetive event just put 'selectedEvent'
+
+  const { user } = Route.useRouteContext()
+  const queryClient = useQueryClient()
   const [currentMonth, setCurrentMonth] = useState(new Date())
   const [currentPage, setCurrentPage] = useState(1)
   const [editingEvent, setEditingEvent] = useState<DatabaseEvents>(undefined)
@@ -25,13 +29,14 @@ function Dashboard() {
   const [eventToDelete, setEventToDelete] = useState<DatabaseEvents>(undefined)
   const [eventToShare, setEventToShare] = useState<DatabaseEvents>(undefined)
   const [isShareDialogOpen, setIsShareDialogOpen] = useState(false)
-
   const eventsPerPage = 6
-  const { query } = useEvents(currentMonth.getMonth());
+  const { query, getAllEventQueryOptions,updateEventMutation } = useEvents(currentMonth.getMonth());
   const { data, error, isPending } = query
-  const events = data?.events
 
-
+  const events = data?.events.filter((event, index, self) =>
+    index === self.findIndex((t) => (
+      t.id === event.id)))
+  
   const indexOfLastEvent = currentPage * eventsPerPage
   const indexOfFirstEvent = indexOfLastEvent - eventsPerPage
   const currentEvents = events?.slice(indexOfFirstEvent, indexOfLastEvent)
@@ -39,6 +44,18 @@ function Dashboard() {
   const totalPages = Math.ceil((events?.length ?? 0) / eventsPerPage)
   const nextMonth = () => { setCurrentMonth(addMonths(currentMonth, 1)); setCurrentPage(1); }
   const prevMonth = () => { setCurrentMonth(subMonths(currentMonth, 1)); setCurrentPage(1) }
+
+  ws.addEventListener('message', (message) => {
+    const data = JSON.parse(message.data)
+    if(data.modify){
+      console.log(data.eventId, data.data);
+      
+      updateEventMutation(data.eventId, data.data)
+      return null
+    }
+    queryClient.invalidateQueries({queryKey: getAllEventQueryOptions(data.data).queryKey})
+
+  })
 
 
   return (
@@ -109,12 +126,22 @@ function Dashboard() {
             //componente a parte!!!!!
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
               {currentEvents.map((event) => (
-                <Card key={event.id} className={""}>
+                <Card key={event.id} className={event.sharedFrom && event.sharedFrom !== user.id ? 'border-blue-500' : ""}>
                   <CardHeader>
-                    <CardTitle className="flex items-center justify-between ">
-                      <div className='break-all'>
-                        {event.title}
-                      </div>
+                    <CardTitle className="flex items-start justify-between break-all">
+                      {event.title}
+                      {event.sharedTo && (
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger>
+                              <Users className="h-4 w-4 text-blue-500" />
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>aaaa</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      )}
                     </CardTitle>
                     <CardDescription>{event.dateEnd ? new Date(event.date).toLocaleDateString() + " - " + new Date(event.dateEnd).toLocaleDateString() : new Date(event.date).toLocaleDateString()}</CardDescription>
                   </CardHeader>
@@ -162,9 +189,6 @@ function Dashboard() {
       </section>
       <section className="w-full py-12 md:py-24 lg:py-32 bg-gray-100 dark:bg-gray-800">
         <div className="container px-4 md:px-6">
-          {/*Usare i pulsanti per aggiornare lo stato e aggiungere isSharing e il controllo per la modifica usare chiamare il componente form da qua */}
-          {/*assegnare a modify l evento selezionato e controllare l esistenza tramite l id (come in passato) */}
-          {/*usare il dialog per la conferma dell eliminazione e di default deve aggiungere un evento */}
           <div className="flex items-end mb-8 ">
             <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl  ">{editingEvent ? "Modifica Evento" : "Crea Nuovo Evento"}</h2>
             {editingEvent &&
@@ -192,6 +216,7 @@ function Dashboard() {
           />
         </div>
       </section>
+      {/* Dont care that it is duplicted is not worth it to make a new file just 4 this  */}
       <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
         <DialogContent>
           <DialogHeader>
@@ -210,7 +235,6 @@ function Dashboard() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-
       <Dialog open={isShareDialogOpen} onOpenChange={setIsShareDialogOpen}>
         <DialogContent>
           <DialogHeader>

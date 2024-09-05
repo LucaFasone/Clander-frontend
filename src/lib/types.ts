@@ -6,12 +6,13 @@ export type Event = {
     activeReminder: boolean;
 };
 export type DatabaseEvents = {
-    date: string;
     id: number;
     title: string;
-    activeReminder: boolean | null;
+    date: string;
     description: string | null;
-    createAt: string | null;
-    createBy: string;
     dateEnd: string | null;
+    activeReminder: boolean | null;
+    sharedTo: string | null;
+    sharedFrom: string | null;
+    actions: string | null;
 } | undefined

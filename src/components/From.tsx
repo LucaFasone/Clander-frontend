@@ -5,10 +5,7 @@ import { zodValidator } from '@tanstack/zod-form-adapter'
 import { createEvent, formType, shareEvent } from './../../../sharedTypes.ts'
 import { Field, useForm } from '@tanstack/react-form';
 import { Button } from './ui/button.tsx';
-import { Checkbox } from './ui/checkbox.tsx';
-import { DialogTrigger } from './ui/dialog.tsx';
 import { useEvents } from '@/hooks/useEvents.ts';
-import PoppoverCalendarField from './PoppoverCalendarField.tsx';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select.tsx';
 import { sendNotifyForShare } from '@/lib/api.ts';
 import { CalendarIcon, PlusCircle } from 'lucide-react';
@@ -54,7 +51,7 @@ function Form({ date, dateEnd, reset, currentMonth, title, description, activeRe
         if (isSharing && eventId) {
           await sendNotifyForShare(eventId, value.userSharedEvent, value.permissions)
           toast({
-            title: "Shared Event successfully",
+            title: "Message sent successfully",
           })
         }
         if (!eventId) {

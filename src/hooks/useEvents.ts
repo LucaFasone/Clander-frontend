@@ -3,21 +3,18 @@ import { api, deleteEventById, getAllSingleDayEvent, updateEvent } from '@/lib/a
 import { Event } from '@/lib/types';
 
 export function useEvents(month: number) {
-
   const queryClient = useQueryClient();
   const getAllEventQueryOptions = (month: number) => queryOptions({
     queryKey: ['get-all-single-day-event', month],
     queryFn: () => getAllSingleDayEvent(month),
     staleTime: Infinity
   })
+  const query = useQuery(getAllEventQueryOptions(month))
+  const getAllEventQueryKey = getAllEventQueryOptions(month).queryKey;
 
   const sortEventsByDate = (events: any[]) => {
     return events.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
   };
-
-  const query = useQuery(getAllEventQueryOptions(month))
-  const getAllEventQueryKey = getAllEventQueryOptions(month).queryKey;
-
   const updateMutation = useMutation({
     //in all of this code is intedent to not use queryClient.invalidateQuery/refetchQueries bc i just wanted to update the Cache and not refetch the data from the server
     //this should be faster but the code is more verbose and harder to read/maintain
@@ -85,17 +82,20 @@ export function useEvents(month: number) {
     if (!res.ok) {
       throw new Error('Evento non aggiunto');
     }
+    const data = await res.json()
+    console.log(data);
+    
     const existingEvent = await queryClient.ensureQueryData(getAllEventQueryOptions(event.date.getMonth()));
     queryClient.setQueryData(getAllEventQueryOptions(event.date.getMonth()).queryKey, ({
       ...existingEvent,
-      events: [...existingEvent.events, await res.json()].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+      events: [...existingEvent.events,data].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
     }));
 
   };
-
   const updateEventMutation = (Id: number, Event: Event) => {
-    updateMutation.mutate({ Id, Event });
+    updateMutation.mutate({ Id:Id, Event:Event });
+    
   };
 
-  return { query, addEvent, getAllEventQueryKey, updateEventMutation };
+  return { query, addEvent, getAllEventQueryKey, updateEventMutation,getAllEventQueryOptions };
 }
