@@ -14,6 +14,7 @@ import DeleteButton from '@/components/DeleteButton'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { ws } from '@/lib/api'
 import { useQueryClient } from '@tanstack/react-query'
+import { wsMessage } from '../../../..'
 export const Route = createFileRoute('/_auth/dashboard')({
   component: Dashboard
 })
@@ -30,13 +31,13 @@ function Dashboard() {
   const [eventToShare, setEventToShare] = useState<DatabaseEvents>(undefined)
   const [isShareDialogOpen, setIsShareDialogOpen] = useState(false)
   const eventsPerPage = 6
-  const { query, getAllEventQueryOptions,updateEventMutation } = useEvents(currentMonth.getMonth());
+  const { query, getAllEventQueryOptions, updateEventMutation } = useEvents(currentMonth.getMonth());
   const { data, error, isPending } = query
 
   const events = data?.events.filter((event, index, self) =>
     index === self.findIndex((t) => (
       t.id === event.id)))
-  
+
   const indexOfLastEvent = currentPage * eventsPerPage
   const indexOfFirstEvent = indexOfLastEvent - eventsPerPage
   const currentEvents = events?.slice(indexOfFirstEvent, indexOfLastEvent)
@@ -46,17 +47,16 @@ function Dashboard() {
   const prevMonth = () => { setCurrentMonth(subMonths(currentMonth, 1)); setCurrentPage(1) }
 
   ws.addEventListener('message', (message) => {
-    const data = JSON.parse(message.data)
-    if(data.modify){
-      console.log(data.eventId, data.data);
-      
-      updateEventMutation(data.eventId, data.data)
-      return null
+    const data = JSON.parse(message.data) as wsMessage
+    if (typeof data.month == 'number') {
+      queryClient.invalidateQueries({ queryKey: getAllEventQueryOptions(data.month).queryKey })
+      queryClient.invalidateQueries({ queryKey: getAllEventQueryOptions(currentMonth.getMonth()).queryKey })
     }
-    queryClient.invalidateQueries({queryKey: getAllEventQueryOptions(data.data).queryKey})
-
   })
 
+  console.log(currentEvents);
+  console.log(user.id);
+  
 
   return (
     <main className="flex-1">
@@ -123,7 +123,6 @@ function Dashboard() {
 
             </div>}
           {currentEvents && currentEvents.length > 0 ? (
-            //componente a parte!!!!!
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
               {currentEvents.map((event) => (
                 <Card key={event.id} className={event.sharedFrom && event.sharedFrom !== user.id ? 'border-blue-500' : ""}>
@@ -131,16 +130,7 @@ function Dashboard() {
                     <CardTitle className="flex items-start justify-between break-all">
                       {event.title}
                       {event.sharedTo && (
-                        <TooltipProvider>
-                          <Tooltip>
-                            <TooltipTrigger>
-                              <Users className="h-4 w-4 text-blue-500" />
-                            </TooltipTrigger>
-                            <TooltipContent>
-                              <p>aaaa</p>
-                            </TooltipContent>
-                          </Tooltip>
-                        </TooltipProvider>
+                        <Users className="h-4 w-4 text-blue-500" />
                       )}
                     </CardTitle>
                     <CardDescription>{event.dateEnd ? new Date(event.date).toLocaleDateString() + " - " + new Date(event.dateEnd).toLocaleDateString() : new Date(event.date).toLocaleDateString()}</CardDescription>
@@ -149,15 +139,15 @@ function Dashboard() {
                     <p className='break-all'>{event.description}</p>
                   </CardContent>
                   <CardFooter className="flex justify-between">
-                    <Button variant="outline" size="sm" onClick={() => setEditingEvent(event)}>
+                    <Button variant="outline" size="sm" onClick={() => setEditingEvent(event)} disabled={event.sharedFrom === user.id ?  false : event.actions === 'modify' || event.actions === "all" ? false: true }>
                       <Edit className="w-4 h-4 mr-2" />
                       Modifica
                     </Button>
-                    <Button variant="outline" size="sm" onClick={() => { setIsShareDialogOpen(true); setEventToShare(event) }}>
+                    <Button variant="outline" size="sm" onClick={() => { setIsShareDialogOpen(true); setEventToShare(event) }} disabled={event.sharedFrom === user.id ?  false : event.actions === 'share' || event.actions === "all" ? false: true } >
                       <Share2 className="w-4 h-4 mr-2" />
                       Condividi
                     </Button>
-                    <Button variant="outline" size="sm" onClick={() => { setIsDeleteDialogOpen(true); setEventToDelete(event) }}>
+                    <Button variant="outline" size="sm" onClick={() => { setIsDeleteDialogOpen(true); setEventToDelete(event) }} disabled={event.sharedFrom !== user.id}>
                       <Trash2 className="w-4 h-4 mr-2" />
                       Elimina
                     </Button>
@@ -216,7 +206,7 @@ function Dashboard() {
           />
         </div>
       </section>
-      {/* Dont care that it is duplicted is not worth it to make a new file just 4 this  */}
+      {/* Dont care that it is duplicted is not worth it to make a new file just for this  */}
       <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
         <DialogContent>
           <DialogHeader>

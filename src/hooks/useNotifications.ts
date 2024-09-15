@@ -16,24 +16,12 @@ export const useNotifications = (userId: string) => {
     }
     const acceptNotify = async (Id: number) => {
         try {
-            const { idEvent, success } = await addToSharedEvent(Id)
+            const {success} = await addToSharedEvent(Id, userId)
             if (!success) {
                 alert("Error sharing event")
-                queryClient.invalidateQueries({ queryKey: ['get-notification'] })
-            }
-            const data = await getEventById(idEvent)
-            if ('error' in data) {
-                queryClient.invalidateQueries({ queryKey: ['get-notification'] })
-                alert(data.error)
-                return 'error'
+                throw new Error("Error sharing event")
             }
             queryClient.invalidateQueries({ queryKey: ['get-notification'] })
-            const wsMessage = JSON.stringify({
-                type: 'join',
-                eventId: idEvent,
-                userId: userId,
-            })
-            ws.send(wsMessage)
 
         } catch (err) {
             alert(err)

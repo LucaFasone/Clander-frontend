@@ -14,10 +14,6 @@ const Component = () => {
   const { data, error } = useQuery(getNotifyOptions)
   const {rejectNotify,acceptNotify} = useNotifications(user.id)
   const [isOpen, setIsOpen] = useState(false)
-
-  if (!user) {
-    throw redirect({ to: '/LandingPage' })
-  }
   if (user.picture == null || user.picture?.substring(0, 16) === "https://gravatar") {
     user.picture = 'https://i0.wp.com/digitalhealthskills.com/wp-content/uploads/2022/11/3da39-no-user-image-icon-27.png?fit=500%2C500&ssl=1'
   }
@@ -86,6 +82,9 @@ export const Route = createFileRoute('/_auth')({
   beforeLoad: async ({ context }) => {
     try {
       const { user } = await context.authentication
+      if (!user) {
+        throw redirect({ to: '/LandingPage' })
+      }
       return { user }
 
     } catch (err) {

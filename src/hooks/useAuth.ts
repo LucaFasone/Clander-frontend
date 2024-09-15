@@ -8,7 +8,7 @@ export const useAuth = async () => {
   const {user} = await queryClient.fetchQuery(userQueryOptions);
   return {user};
 } catch (err) {
-  return {user: undefined!};
+  return {user: undefined};
 }
 
 };

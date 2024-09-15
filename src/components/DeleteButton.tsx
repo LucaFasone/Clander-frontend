@@ -30,7 +30,7 @@ export default function DeleteButton({ Id, currentMonth,resetSelection }: { Id: 
     return (
         <Button
             variant="destructive"
-            onClick={() => mutation.mutate({ Id })}
+            onClick={() => mutation.mutate({ Id, currentMonth })}
             disabled={mutation.isPending}
         >Elimina Evento
         </Button>

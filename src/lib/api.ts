@@ -26,11 +26,19 @@ export async function getAllSingleDayEvent(month: number) {
     const data = await res.json();
     return data;
 }
-export async function deleteEventById({ Id }: { Id: number }) {
+export async function deleteEventById({ Id, currentMonth }: { Id: number, currentMonth: number }) {
     const res = await api.calendar.event[":id"].$delete({ param: { id: String(Id) } });
     if (!res.ok) {
         throw new Error('Errore nella cancellazione dell\'evento');
     }
+    const wsMessage = JSON.stringify({
+        type: 'delete',
+        eventId: Id,
+        month: currentMonth
+
+    })
+    
+    ws.send(wsMessage)
     return res.json();
 }
 
@@ -49,33 +57,23 @@ export async function updateEvent({ Id, Event }: { Id: number, Event: Event }) {
     if (!res.ok) {
         throw new Error("Server error");
     }
-    const data = await res.json();
-    const wsMessage = JSON.stringify(
-        {
-            type: "modify",
-            eventId: Id,
-            event: Event
-
-        }
-    );    
-    ws.send(wsMessage)
-    return data
+    const data = await res.json();        
    
+    return data
+
 }
 
 export async function sendNotifyForShare(Id: number, email: string, permissions: string) {
     const res = await api.notifications.notifications.$post({ json: { Id, email, permissions } })
     if (!res.ok) {
-        const {error} = await res.json();
+        const { error } = await res.json();
         throw new Error(error);
     }
     const data = await res.json();
-    const wsMessage = JSON.stringify(
-        {
-            type:"createroom",
-            eventId: Id
-        }
-    )
+    const wsMessage = JSON.stringify({
+        type: 'join',
+        eventId: Id
+    })
     ws.send(wsMessage)
     return data
 }
@@ -94,14 +92,23 @@ export async function deleteNotify(Id: number) {
         throw new Error("Server error")
     }
 }
-export async function addToSharedEvent(Id: number) {
+export async function addToSharedEvent(Id: number, userId: string) {
     const res = await api.calendar.sharedTo.$post({ json: { notificationId: Id } })
-    if(!res.ok){
-        const {error} = await res.json();
+    if (!res.ok) {
+        const { error } = await res.json();
         throw new Error(error);
     }
-    return res.json();
-    
+    const data = await res.json();
+    const wsMessage = JSON.stringify({
+        type: 'join',
+        eventId: Number(data.idEvent),
+        userId: userId,
+        month: data.month,
+        action: 'add'
+    })
+    ws.send(wsMessage)
+    return data
+
 }
 
 export async function getEventById(Id: number) {
@@ -123,9 +130,9 @@ export const getNotifyOptions = queryOptions({
     queryKey: ["get-notification"],
     queryFn: getNotify,
     staleTime: Infinity,
-    refetchInterval: 18000,
+    refetchInterval: 15000,
     refetchOnReconnect: true,
-    refetchIntervalInBackground: true,//maybe not
+    refetchIntervalInBackground: true,
     refetchOnWindowFocus: true,
 })
 

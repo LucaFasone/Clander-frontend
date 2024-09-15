@@ -1,6 +1,6 @@
 import { queryOptions, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { api, deleteEventById, getAllSingleDayEvent, updateEvent } from '@/lib/api';
-import { Event } from '@/lib/types';
+import { api, deleteEventById, getAllSingleDayEvent, updateEvent, ws } from '@/lib/api';
+import type { Event } from '@/lib/types';
 
 export function useEvents(month: number) {
   const queryClient = useQueryClient();
@@ -69,6 +69,20 @@ export function useEvents(month: number) {
           };
         });
       }
+      //remove?
+      const wsMessage = JSON.stringify(
+        {
+            type: "update",
+            eventId: variables.Id,
+            event: Event,
+            month: new Date(variables.Event.date).getMonth()
+        }
+    );
+    
+    ws.send(wsMessage)
+    console.log(wsMessage);
+      
+      
     },
     onError: (error) => {
       console.error("Failed to update event:", error);
@@ -82,9 +96,7 @@ export function useEvents(month: number) {
     if (!res.ok) {
       throw new Error('Evento non aggiunto');
     }
-    const data = await res.json()
-    console.log(data);
-    
+    const data = await res.json()    
     const existingEvent = await queryClient.ensureQueryData(getAllEventQueryOptions(event.date.getMonth()));
     queryClient.setQueryData(getAllEventQueryOptions(event.date.getMonth()).queryKey, ({
       ...existingEvent,
