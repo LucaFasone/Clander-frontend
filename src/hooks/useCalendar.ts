@@ -1,13 +1,12 @@
 import { useState } from 'react';
 import { isEqual, } from 'date-fns';
 import { DateRange, type ActiveModifiers } from 'react-day-picker';
-
+//DEPRECATED
 export const useCalendar = () => {
   const [selectedDay, setSelectedDay] = useState<Date | undefined>()
   const [isUserSelectingRange, setUserSelectingRange] = useState<boolean>(false);
   const [selectedRange, setSelectedRange] = useState<DateRange>();
 
-  // need to be draggable for better usability 
   const handleDayClick = (selectedDayFromCalendar: Date) => {
     if (!isUserSelectingRange) {
       setSelectedRange(undefined)
