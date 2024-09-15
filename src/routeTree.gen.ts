@@ -12,9 +12,10 @@
 
 import { Route as rootRoute } from './routes/__root'
 import { Route as AuthImport } from './routes/_auth'
+import { Route as LandingPageImport } from './routes/LandingPage'
 import { Route as IndexImport } from './routes/index'
-import { Route as AuthTestImport } from './routes/_auth/test'
-import { Route as AuthMaoImport } from './routes/_auth/mao'
+import { Route as AuthUserPageImport } from './routes/_auth/userPage'
+import { Route as AuthDashboardImport } from './routes/_auth/dashboard'
 
 // Create/Update Routes
 
@@ -23,18 +24,23 @@ const AuthRoute = AuthImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
+const LandingPageRoute = LandingPageImport.update({
+  path: '/LandingPage',
+  getParentRoute: () => rootRoute,
+} as any)
+
 const IndexRoute = IndexImport.update({
   path: '/',
   getParentRoute: () => rootRoute,
 } as any)
 
-const AuthTestRoute = AuthTestImport.update({
-  path: '/test',
+const AuthUserPageRoute = AuthUserPageImport.update({
+  path: '/userPage',
   getParentRoute: () => AuthRoute,
 } as any)
 
-const AuthMaoRoute = AuthMaoImport.update({
-  path: '/mao',
+const AuthDashboardRoute = AuthDashboardImport.update({
+  path: '/dashboard',
   getParentRoute: () => AuthRoute,
 } as any)
 
@@ -49,6 +55,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexImport
       parentRoute: typeof rootRoute
     }
+    '/LandingPage': {
+      id: '/LandingPage'
+      path: '/LandingPage'
+      fullPath: '/LandingPage'
+      preLoaderRoute: typeof LandingPageImport
+      parentRoute: typeof rootRoute
+    }
     '/_auth': {
       id: '/_auth'
       path: ''
@@ -56,18 +69,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthImport
       parentRoute: typeof rootRoute
     }
-    '/_auth/mao': {
-      id: '/_auth/mao'
-      path: '/mao'
-      fullPath: '/mao'
-      preLoaderRoute: typeof AuthMaoImport
+    '/_auth/dashboard': {
+      id: '/_auth/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof AuthDashboardImport
       parentRoute: typeof AuthImport
     }
-    '/_auth/test': {
-      id: '/_auth/test'
-      path: '/test'
-      fullPath: '/test'
-      preLoaderRoute: typeof AuthTestImport
+    '/_auth/userPage': {
+      id: '/_auth/userPage'
+      path: '/userPage'
+      fullPath: '/userPage'
+      preLoaderRoute: typeof AuthUserPageImport
       parentRoute: typeof AuthImport
     }
   }
@@ -77,7 +90,8 @@ declare module '@tanstack/react-router' {
 
 export const routeTree = rootRoute.addChildren({
   IndexRoute,
-  AuthRoute: AuthRoute.addChildren({ AuthMaoRoute, AuthTestRoute }),
+  LandingPageRoute,
+  AuthRoute: AuthRoute.addChildren({ AuthDashboardRoute, AuthUserPageRoute }),
 })
 
 /* prettier-ignore-end */
@@ -89,25 +103,29 @@ export const routeTree = rootRoute.addChildren({
       "filePath": "__root.tsx",
       "children": [
         "/",
+        "/LandingPage",
         "/_auth"
       ]
     },
     "/": {
       "filePath": "index.tsx"
     },
+    "/LandingPage": {
+      "filePath": "LandingPage.tsx"
+    },
     "/_auth": {
       "filePath": "_auth.tsx",
       "children": [
-        "/_auth/mao",
-        "/_auth/test"
+        "/_auth/dashboard",
+        "/_auth/userPage"
       ]
     },
-    "/_auth/mao": {
-      "filePath": "_auth/mao.tsx",
+    "/_auth/dashboard": {
+      "filePath": "_auth/dashboard.tsx",
       "parent": "/_auth"
     },
-    "/_auth/test": {
-      "filePath": "_auth/test.tsx",
+    "/_auth/userPage": {
+      "filePath": "_auth/userPage.tsx",
       "parent": "/_auth"
     }
   }

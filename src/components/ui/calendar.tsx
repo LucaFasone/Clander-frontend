@@ -4,19 +4,15 @@ import { DayPicker } from "react-day-picker"
 
 import { cn } from "@/lib/utils"
 import { buttonVariants } from "@/components/ui/button"
-import { useCalendar } from "@/hooks/useCalendar"
 
-export type CalendarProps = React.ComponentProps<typeof DayPicker> & { isDisabled: boolean }
+export type CalendarProps = React.ComponentProps<typeof DayPicker>
 
 function Calendar({
   className,
   classNames,
   showOutsideDays = true,
-  mode="multiple",
   ...props
-}: CalendarProps,isDisabled=false) {
-  const { selectedDays, selectedRange, handleDayClick, handleDayClickKeyUp, handleDayClickKeyDown } = useCalendar();
-
+}: CalendarProps) {
   return (
     <DayPicker
       showOutsideDays={showOutsideDays}
@@ -38,11 +34,10 @@ function Calendar({
         head_cell:
           "text-neutral-500 rounded-md w-9 font-normal text-[0.8rem] dark:text-neutral-400",
         row: "flex w-full mt-2",
-        cell: "h-10 w-12 text-center text-sm p-0 relative [&:has([aria-selected].day-range-end)]:rounded-r-md [&:has([aria-selected].day-outside)]:bg-neutral-100/50  first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md focus-within:relative focus-within:z-20 dark:[&:has([aria-selected].day-outside)]:bg-neutral-800/50 dark:[&:has([aria-selected])]:bg-neutral-800",
+        cell: "h-9 w-9 text-center text-sm p-0 relative [&:has([aria-selected].day-range-end)]:rounded-r-md [&:has([aria-selected].day-outside)]:bg-neutral-100/50 [&:has([aria-selected])]:bg-neutral-100 first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md focus-within:relative focus-within:z-20 dark:[&:has([aria-selected].day-outside)]:bg-neutral-800/50 dark:[&:has([aria-selected])]:bg-neutral-800",
         day: cn(
           buttonVariants({ variant: "ghost" }),
-          "h-9 w-9 p-0 font-normal aria-selected:opacity-100 ",
-          isDisabled ? "cursor-default" : "cursor-pointer",
+          "h-9 w-9 p-0 font-normal aria-selected:opacity-100"
         ),
         day_range_end: "day-range-end",
         day_selected:
@@ -60,18 +55,7 @@ function Calendar({
         IconLeft: ({ ...props }) => <ChevronLeft className="h-4 w-4" />,
         IconRight: ({ ...props }) => <ChevronRight className="h-4 w-4" />,
       }}
-      selected={isDisabled ? [] : selectedDays}
-      onDayClick={isDisabled ? ()=>{} : handleDayClick}
-      onDayKeyDown={isDisabled ? ()=>{} : handleDayClickKeyDown}
-      onDayKeyUp={isDisabled ? ()=>{} : handleDayClickKeyUp}
-      modifiers={isDisabled ? {} : {
-        fullRange: selectedRange,
-        from: selectedRange.filter(range => range.from !== undefined).map(range => range.from!),
-        to: selectedRange.filter(range => range.to !== undefined).map(range => range.to!)
-      }}
-      modifiersClassNames={{ from: '!rounded-l-full', to: "!rounded-r-full", fullRange: 'bg-gray-400 !w-[50px] !rounded-none', progress: '!bg-blue-400', completed: '!bg-green-400', late: '!bg-red-400'}}
       {...props}
-
     />
   )
 }

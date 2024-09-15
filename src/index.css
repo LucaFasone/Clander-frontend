@@ -4,7 +4,7 @@
 @tailwind components;
 @tailwind utilities;
 body{
-    background-color: #EDE4FF;
+    background-color: #fff;
 }
 .mainColorsShadow {
     color: #fcedd8;
