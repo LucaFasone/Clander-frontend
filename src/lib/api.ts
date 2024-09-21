@@ -8,7 +8,6 @@ export const api = client.api
 const clientws = hc<wstype>('http://localhost:3000')
 export const ws = clientws.ws.$ws(0)
 
-//closure??
 const getUserProfile = async () => {
     const res = await api.me.$get()
     if (res.status === 401) {
@@ -18,15 +17,15 @@ const getUserProfile = async () => {
     return data
 
 }
-export async function getAllSingleDayEvent(month: number) {
-    const res = await api.calendar[':month'].$get({ param: { month: String(month) } });
+export async function getAllSingleDayEvent(month: number,year: number){
+    const res = await api.calendar[':month'][':year'].$get({ param: { month: String(month),year: String(year)} });
     if (!res.ok) {
         throw new Error("Server error");
     }
     const data = await res.json();
     return data;
 }
-export async function deleteEventById({ Id, currentMonth }: { Id: number, currentMonth: number }) {
+export async function deleteEventById({ Id, currentMonth,year }: { Id: number, currentMonth: number,year: number }) {
     const res = await api.calendar.event[":id"].$delete({ param: { id: String(Id) } });
     if (!res.ok) {
         throw new Error('Errore nella cancellazione dell\'evento');
@@ -34,10 +33,9 @@ export async function deleteEventById({ Id, currentMonth }: { Id: number, curren
     const wsMessage = JSON.stringify({
         type: 'delete',
         eventId: Id,
-        month: currentMonth
-
+        month: currentMonth,
+        year: year
     })
-    
     ws.send(wsMessage)
     return res.json();
 }
@@ -57,10 +55,8 @@ export async function updateEvent({ Id, Event }: { Id: number, Event: Event }) {
     if (!res.ok) {
         throw new Error("Server error");
     }
-    const data = await res.json();        
-   
+    const data = await res.json();
     return data
-
 }
 
 export async function sendNotifyForShare(Id: number, email: string, permissions: string) {
@@ -103,7 +99,8 @@ export async function addToSharedEvent(Id: number, userId: string) {
         type: 'join',
         eventId: Number(data.idEvent),
         userId: userId,
-        month: data.month,
+        month: data.date.month,
+        year: data.date.year,
         action: 'add'
     })
     ws.send(wsMessage)
@@ -118,6 +115,46 @@ export async function getEventById(Id: number) {
     }
     const data = await res.json();
     return data;
+}
+export async function getUserListBySharedEvent(Id: number) {
+    const res = await api.shared['getUsers'].$post({ json: { eventId: Id } })
+    const data = await res.json();
+    if ("error" in data) {
+        throw new Error(data.error)
+    }
+    if (!res.ok) {
+        throw new Error("Server error")
+    }
+    return data.result;
+}
+export async function submitModifyOfSharedEvent(email: string, Id: number, permission: string, currentMonth: number, currentYear: number) {
+    const res = await api.modify.share.$put({ json: { userEmail: email, eventId: Id, permission: permission } })
+    if (!res.ok) {
+        throw new Error("Server error");
+    }
+    const wsMessage = JSON.stringify({
+        type: 'update',
+        eventId: Id,
+        month: currentMonth,
+        year: currentYear
+    })
+    ws.send(wsMessage)
+    return res.json();
+}
+
+export async function revokeEventForUser(Id: number, currentMonth: number, year: number) {
+    const res = await api.shared.revokeEventsForUser.$delete({ json: { eventId: Id } })
+    if (!res.ok) {
+        throw new Error("Server error");
+    }
+    const wsMessage = JSON.stringify({
+        type: 'deleteUser',
+        eventId: Id,
+        month: currentMonth,
+        year: year
+    })
+    ws.send(wsMessage)
+    return res.json();
 }
 
 export const userQueryOptions = queryOptions({

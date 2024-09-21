@@ -2,15 +2,15 @@ import { queryOptions, useMutation, useQuery, useQueryClient } from '@tanstack/r
 import { api, deleteEventById, getAllSingleDayEvent, updateEvent, ws } from '@/lib/api';
 import type { Event } from '@/lib/types';
 
-export function useEvents(month: number) {
+export function useEvents(month: number, year: number) {
   const queryClient = useQueryClient();
-  const getAllEventQueryOptions = (month: number) => queryOptions({
-    queryKey: ['get-all-single-day-event', month],
-    queryFn: () => getAllSingleDayEvent(month),
+  const getAllEventQueryOptions = (month: number, year: number) => queryOptions({
+    queryKey: ['get-all-single-day-event', month, year],
+    queryFn: () => getAllSingleDayEvent(month, year),
     staleTime: Infinity
   })
-  const query = useQuery(getAllEventQueryOptions(month))
-  const getAllEventQueryKey = getAllEventQueryOptions(month).queryKey;
+  const query = useQuery(getAllEventQueryOptions(month, year))
+  const getAllEventQueryKey = getAllEventQueryOptions(month, year).queryKey;
 
   const sortEventsByDate = (events: any[]) => {
     return events.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
@@ -21,10 +21,13 @@ export function useEvents(month: number) {
     mutationFn: updateEvent,
     onSuccess: (data, variables) => {
       const updatedMonth = variables.Event.date.getMonth();
-      queryClient.setQueryData(['get-all-single-day-event', month], (oldData: any) => {
+      const updatedYear = variables.Event.date.getFullYear();
+      queryClient.setQueryData(['get-all-single-day-event', month, year], (oldData: any) => {
         if (!oldData) return oldData;
         const currentMonth = new Date(oldData.events[0]?.date).getMonth();
-        if (updatedMonth !== currentMonth) {
+        const currentYear = new Date(oldData.events[0]?.date).getFullYear();
+
+        if (updatedMonth !== currentMonth || updatedYear !== currentYear) {
           const updatedEvents = oldData.events.filter((event: any) => event.id !== variables.Id);
           return {
             ...oldData,
@@ -50,8 +53,8 @@ export function useEvents(month: number) {
         }
       });
 
-      if (updatedMonth !== month) {
-        queryClient.setQueryData(['get-all-single-day-event', updatedMonth], (oldNewMonthData: any) => {
+      if (updatedMonth !== month || updatedYear !== year) {
+        queryClient.setQueryData(['get-all-single-day-event', updatedMonth, updatedYear], (oldNewMonthData: any) => {
           if (!oldNewMonthData) return oldNewMonthData;
           return {
             ...oldNewMonthData,
@@ -69,20 +72,17 @@ export function useEvents(month: number) {
           };
         });
       }
-      //remove?
       const wsMessage = JSON.stringify(
         {
-            type: "update",
-            eventId: variables.Id,
-            event: Event,
-            month: new Date(variables.Event.date).getMonth()
+          type: "update",
+          eventId: variables.Id,
+          event: Event,
+          month: new Date(variables.Event.date).getMonth(),
+          year: new Date(variables.Event.date).getFullYear()
         }
-    );
-    
-    ws.send(wsMessage)
-    console.log(wsMessage);
-      
-      
+      );
+
+      ws.send(wsMessage);
     },
     onError: (error) => {
       console.error("Failed to update event:", error);
@@ -96,18 +96,18 @@ export function useEvents(month: number) {
     if (!res.ok) {
       throw new Error('Evento non aggiunto');
     }
-    const data = await res.json()    
-    const existingEvent = await queryClient.ensureQueryData(getAllEventQueryOptions(event.date.getMonth()));
-    queryClient.setQueryData(getAllEventQueryOptions(event.date.getMonth()).queryKey, ({
+    const data = await res.json()
+    const existingEvent = await queryClient.ensureQueryData(getAllEventQueryOptions(event.date.getMonth(), event.date.getFullYear()));
+    queryClient.setQueryData(getAllEventQueryOptions(event.date.getMonth(), event.date.getFullYear()).queryKey, ({
       ...existingEvent,
-      events: [...existingEvent.events,data].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+      events: [...existingEvent.events, data].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
     }));
 
   };
   const updateEventMutation = (Id: number, Event: Event) => {
-    updateMutation.mutate({ Id:Id, Event:Event });
-    
+    updateMutation.mutate({ Id: Id, Event: Event });
+
   };
 
-  return { query, addEvent, getAllEventQueryKey, updateEventMutation,getAllEventQueryOptions };
+  return { query, addEvent, getAllEventQueryKey, updateEventMutation, getAllEventQueryOptions };
 }

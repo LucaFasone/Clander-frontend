@@ -8,11 +8,12 @@ import { getNotifyOptions } from '@/lib/api'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { useState } from 'react'
 import { useNotifications } from '@/hooks/useNotifications'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 
 const Component = () => {
   const { user } = Route.useRouteContext()
   const { data, error } = useQuery(getNotifyOptions)
-  const {rejectNotify,acceptNotify} = useNotifications(user.id)
+  const { rejectNotify, acceptNotify } = useNotifications(user.id)
   const [isOpen, setIsOpen] = useState(false)
   if (user.picture == null || user.picture?.substring(0, 16) === "https://gravatar") {
     user.picture = 'https://i0.wp.com/digitalhealthskills.com/wp-content/uploads/2022/11/3da39-no-user-image-icon-27.png?fit=500%2C500&ssl=1'
@@ -29,7 +30,7 @@ const Component = () => {
           Logout
         </Button>
         <Button variant='ghost'>
-         {!error && <Popover open={isOpen} onOpenChange={setIsOpen}>
+          {!error && <Popover open={isOpen} onOpenChange={setIsOpen}>
             <PopoverTrigger asChild>
               <div className="relative h-5 w-5">
                 {data && data?.length > 0 ? <MailOpen className="h-5 w-5" /> : <Mail className="h-5 w-5" />}
@@ -51,8 +52,8 @@ const Component = () => {
                       <p className='text-sm text-gray-500'>{notification.Event.dateEnd ? new Date(notification.Event.date).toLocaleDateString() + ' - ' + new Date(notification.Event.dateEnd) : new Date(notification.Event.date).toLocaleDateString()}</p>
                       <p className='text-sm text-gray-500'>Permissions: {notification.notification.permissions}</p>
                       <div className='flex justify-end'>
-                        <Button variant='link' className='text-xs font-medium text-red-600' onClick={(e) => rejectNotify(notification.notification.id).catch((e) =>{alert(e)})}>Rifiuta</Button>
-                        <Button variant='link' className='text-xs font-medium text-green-600' onClick={(e) => acceptNotify(notification.notification.id).catch((e) =>{alert(e)})}>Accetta</Button>
+                        <Button variant='link' className='text-xs font-medium text-red-600' onClick={(e) => rejectNotify(notification.notification.id).catch((e) => { alert(e) })}>Rifiuta</Button>
+                        <Button variant='link' className='text-xs font-medium text-green-600' onClick={(e) => acceptNotify(notification.notification.id).catch((e) => { alert(e) })}>Accetta</Button>
                       </div>
                     </div>
                   )) : "Nessuna notifica"}
@@ -66,11 +67,27 @@ const Component = () => {
             </PopoverContent>
           </Popover>}
         </Button>
-        <Link to='/userPage'>
-          <div className=''>
-            <img src={user.picture} height={'36px'} width={'36px'} className='rounded-full border-2' />
-          </div>
-        </Link>
+        <Popover >
+          <PopoverTrigger asChild>
+             <Avatar className="h-8 w-8">
+              <AvatarImage src={user.picture} alt={user.family_name} />
+              <AvatarFallback>{user.family_name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
+            </Avatar>
+          </PopoverTrigger>
+          <PopoverContent className="w-80 bg-black text-white p-4 rounded-lg">
+            <div className="flex items-center space-x-4 mb-4">
+              <div>
+                <h2 className="text-xl font-semibold">{user.given_name}</h2>
+              </div>
+            </div>
+            <div className="space-y-2">
+              <div>
+                <p className="text-sm text-gray-400">Email</p>
+                <p className="text-sm">{user.email}</p>
+              </div>
+            </div>
+          </PopoverContent>
+        </Popover>
       </Navbar >
       <Outlet />
       <Toaster />

@@ -22,12 +22,12 @@ type FromProps = formType & {
   reset: any
 };
 
-function Form({ date, dateEnd, reset, currentMonth, title, description, activeReminder, eventId, isSharing }: FromProps) {
+function Form({ date, dateEnd, reset, currentMonth, title, description, activeReminder, eventId, isSharing, currentYear }: FromProps) {
   //const { addEvent, updateEventAndRefreshData } = useEvents(currentMonth || new Date().getMonth());
 
   const [dateForm, setDate] = useState<{ from: Date; to?: Date }>()
   const [userEmail, setUserEmail] = useState<boolean>(false)
-  const { addEvent, updateEventMutation } = useEvents(currentMonth || new Date().getMonth());
+  const { addEvent, updateEventMutation } = useEvents(currentMonth || new Date().getMonth(), currentYear || new Date().getFullYear());
   const { toast } = useToast()
 
   const form = useForm({
@@ -256,8 +256,8 @@ function Form({ date, dateEnd, reset, currentMonth, title, description, activeRe
         selector={(state) => [state.canSubmit, state.isSubmitting]}
         children={([canSubmit, isSubmitting]) => (
           <Button type="submit" className='w-full' disabled={!canSubmit}>
-            <PlusCircle className="w-4 h-4 mr-2" />
-            {isSubmitting ? '...' : eventId ? 'Modifica evento' : 'Crea Evento'}
+            {isSharing? <PlusCircle className="w-4 h-4 mr-2" /> : ""}
+            {isSubmitting ? '...' : eventId ? isSharing ? 'Invia richiesta di condivisione' : 'Modifica evento' : 'Crea Evento'}
           </Button>
 
         )}

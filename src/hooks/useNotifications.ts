@@ -1,7 +1,5 @@
 import { addToSharedEvent, api, deleteNotify, getEventById } from "@/lib/api"
 import { useQueryClient } from "@tanstack/react-query"
-import { useEvents } from "./useEvents"
-import { ws } from '@/lib/api'
 
 export const useNotifications = (userId: string) => {
     const queryClient = useQueryClient()

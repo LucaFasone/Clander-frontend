@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { ChevronLeft, ChevronRight, Share2, Edit, Trash2, Users } from "lucide-react"
-import { addMonths, subMonths } from "date-fns"
+import { addMonths, subMonths, getYear } from "date-fns"
 import { useEvents } from '@/hooks/useEvents'
 import Form from '@/components/From';
 import { DatabaseEvents } from '@/lib/types'
@@ -15,6 +15,8 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import { ws } from '@/lib/api'
 import { useQueryClient } from '@tanstack/react-query'
 import { wsMessage } from '../../../..'
+import ModifyShare from '@/components/ModifyShare'
+import test from 'node:test'
 export const Route = createFileRoute('/_auth/dashboard')({
   component: Dashboard
 })
@@ -24,14 +26,18 @@ function Dashboard() {
   const { user } = Route.useRouteContext()
   const queryClient = useQueryClient()
   const [currentMonth, setCurrentMonth] = useState(new Date())
+  const [currentYear, setCurrentYear] = useState(new Date().getFullYear())
   const [currentPage, setCurrentPage] = useState(1)
   const [editingEvent, setEditingEvent] = useState<DatabaseEvents>(undefined)
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
   const [eventToDelete, setEventToDelete] = useState<DatabaseEvents>(undefined)
   const [eventToShare, setEventToShare] = useState<DatabaseEvents>(undefined)
   const [isShareDialogOpen, setIsShareDialogOpen] = useState(false)
+  const [isModifyShareDialogOpen, setIsModifyShareDialogOpening] = useState(false)
+  const [revokingShareEvent, setRevokingShareEvent] = useState<DatabaseEvents>(undefined)
+
   const eventsPerPage = 6
-  const { query, getAllEventQueryOptions, updateEventMutation } = useEvents(currentMonth.getMonth());
+  const { query, getAllEventQueryOptions } = useEvents(currentMonth.getMonth(), currentYear);
   const { data, error, isPending } = query
 
   const events = data?.events.filter((event, index, self) =>
@@ -43,20 +49,28 @@ function Dashboard() {
   const currentEvents = events?.slice(indexOfFirstEvent, indexOfLastEvent)
 
   const totalPages = Math.ceil((events?.length ?? 0) / eventsPerPage)
-  const nextMonth = () => { setCurrentMonth(addMonths(currentMonth, 1)); setCurrentPage(1); }
-  const prevMonth = () => { setCurrentMonth(subMonths(currentMonth, 1)); setCurrentPage(1) }
 
+  const nextMonth = () => {
+    const nextDate = addMonths(currentMonth, 1);
+    setCurrentMonth(nextDate);
+    setCurrentYear(getYear(nextDate));
+    setCurrentPage(1);
+  };
+  const prevMonth = () => {
+    const prevDate = subMonths(currentMonth, 1);
+    setCurrentMonth(prevDate);
+    setCurrentYear(getYear(prevDate));
+    setCurrentPage(1);
+  };
   ws.addEventListener('message', (message) => {
     const data = JSON.parse(message.data) as wsMessage
+    //console.log(data);
     if (typeof data.month == 'number') {
-      queryClient.invalidateQueries({ queryKey: getAllEventQueryOptions(data.month).queryKey })
-      queryClient.invalidateQueries({ queryKey: getAllEventQueryOptions(currentMonth.getMonth()).queryKey })
+      queryClient.invalidateQueries({ queryKey: getAllEventQueryOptions(data.month, data.year).queryKey })
+      queryClient.invalidateQueries({ queryKey: getAllEventQueryOptions(currentMonth.getMonth(), currentYear).queryKey })
     }
   })
 
-  console.log(currentEvents);
-  console.log(user.id);
-  
 
   return (
     <main className="flex-1">
@@ -76,8 +90,7 @@ function Dashboard() {
             </div>
           </div>
           <div className="">
-            <Button className='mb-4' onClick={() => setCurrentMonth(new Date())}>Go To Today</Button>
-
+            <Button className='mb-4' onClick={() => {setCurrentMonth(new Date()); setCurrentYear(new Date().getFullYear())}}>Go To Today</Button>
           </div>
           {isPending &&
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
@@ -130,7 +143,18 @@ function Dashboard() {
                     <CardTitle className="flex items-start justify-between break-all">
                       {event.title}
                       {event.sharedTo && (
-                        <Users className="h-4 w-4 text-blue-500" />
+                        <Button variant="ghost" size="sm" onClick={() => {
+                          if (event.sharedFrom === user.id) {
+                            setIsModifyShareDialogOpening(true);
+                            setEventToShare(event);
+                          }
+                          if (event.sharedTo === user.id) {
+                            setIsDeleteDialogOpen(true);
+                            setRevokingShareEvent(event);
+                          }
+                        }}>
+                          <Users className="h-4 w-4 text-blue-500" />
+                        </Button>
                       )}
                     </CardTitle>
                     <CardDescription>{event.dateEnd ? new Date(event.date).toLocaleDateString() + " - " + new Date(event.dateEnd).toLocaleDateString() : new Date(event.date).toLocaleDateString()}</CardDescription>
@@ -139,15 +163,25 @@ function Dashboard() {
                     <p className='break-all'>{event.description}</p>
                   </CardContent>
                   <CardFooter className="flex justify-between">
-                    <Button variant="outline" size="sm" onClick={() => setEditingEvent(event)} disabled={event.sharedFrom === user.id ?  false : event.actions === 'modify' || event.actions === "all" ? false: true }>
+                    <Button variant="outline" size="sm" onClick={() => setEditingEvent(event)} disabled={(() => {
+                      if (event.sharedFrom == null) return false;
+                      if (event.sharedFrom === user.id) return false;
+                      if (event.actions === 'modify' || event.actions === 'all') return false;
+                      return true;
+                    })()}>
                       <Edit className="w-4 h-4 mr-2" />
                       Modifica
                     </Button>
-                    <Button variant="outline" size="sm" onClick={() => { setIsShareDialogOpen(true); setEventToShare(event) }} disabled={event.sharedFrom === user.id ?  false : event.actions === 'share' || event.actions === "all" ? false: true } >
+                    <Button variant="outline" size="sm" onClick={() => { setIsShareDialogOpen(true); setEventToShare(event) }} disabled={(() => {
+                      if (event.sharedFrom == null) return false;
+                      if (event.sharedFrom === user.id) return false;
+                      if (event.actions === 'sharable' || event.actions === 'all') return false;
+                      return true;
+                    })()}>
                       <Share2 className="w-4 h-4 mr-2" />
                       Condividi
                     </Button>
-                    <Button variant="outline" size="sm" onClick={() => { setIsDeleteDialogOpen(true); setEventToDelete(event) }} disabled={event.sharedFrom !== user.id}>
+                    <Button variant="outline" size="sm" onClick={() => { setIsDeleteDialogOpen(true); setEventToDelete(event) }} disabled={event.sharedFrom != null && event.sharedFrom !== user.id}>
                       <Trash2 className="w-4 h-4 mr-2" />
                       Elimina
                     </Button>
@@ -202,6 +236,7 @@ function Dashboard() {
             description={editingEvent?.description || undefined}
             eventId={editingEvent?.id || undefined}
             currentMonth={editingEvent ? new Date(editingEvent.date).getMonth() : undefined}
+            currentYear={editingEvent ? new Date(editingEvent.date).getFullYear() : undefined}
             reset={() => setEditingEvent(undefined)}
           />
         </div>
@@ -212,15 +247,19 @@ function Dashboard() {
           <DialogHeader>
             <DialogTitle>Conferma eliminazione</DialogTitle>
             <DialogDescription>
-              Sei sicuro di voler eliminare l'evento "{eventToDelete?.title}"? Questa azione non può essere annullata.
+              {revokingShareEvent ?
+                ` Sei sicuro di voler rinunciare alla condivisone dell'evento "${revokingShareEvent?.title}"? Questa azione non può essere annullata.` :
+                ` Sei sicuro di voler eliminare l'evento "${eventToDelete?.title}"? Questa azione non può essere annullata.`}
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setIsDeleteDialogOpen(false)}>Annulla</Button>
+            <Button variant="outline" onClick={() => { setIsDeleteDialogOpen(false) }}>Annulla</Button>
             <DeleteButton
               Id={eventToDelete?.id!}
-              currentMonth={currentMonth.getMonth()}
+              currentMonth={currentMonth}
               resetSelection={() => { setIsDeleteDialogOpen(false); setEventToDelete(undefined) }}
+              revokingShareEvent={revokingShareEvent}
+              resetReveoke={() => { setIsDeleteDialogOpen(false); setRevokingShareEvent(undefined) }}
             />
           </DialogFooter>
         </DialogContent>
@@ -244,11 +283,29 @@ function Dashboard() {
 
           </DialogFooter>
         </DialogContent>
+      </Dialog>
+      <Dialog open={isModifyShareDialogOpen} onOpenChange={setIsModifyShareDialogOpening}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Modifica condivisione</DialogTitle>
+            <DialogDescription>
+              Modifica i permessi di condivisione dell'evento "{eventToShare?.title}"
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <div className="w-full">
+              <ModifyShare
+                id={eventToShare?.id!}
+                reset={() => { setIsModifyShareDialogOpening(false); setEventToShare(undefined); }}
+                currentMonth={currentMonth}
+              />
+            </div>
 
+          </DialogFooter>
+        </DialogContent>
       </Dialog>
 
     </main>
 
   )
 }
-
