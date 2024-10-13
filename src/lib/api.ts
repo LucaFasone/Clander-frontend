@@ -1,15 +1,11 @@
 import { hc } from 'hono/client'
-import {queryOptions } from "@tanstack/react-query"
+import { keepPreviousData, queryOptions } from "@tanstack/react-query"
 import { wstype, type ApiRoutes } from "../../../index"
 import { Event } from '@/lib/types';
 
-//@ts-ignore
-const client = hc<ApiRoutes>('https://clander-production.up.railway.app')
-//@ts-ignore
+const client = hc<ApiRoutes>('/')
 export const api = client.api
-//@ts-ignore
-const clientws = hc<wstype>('wss://clander-production.up.railway.app')
-//@ts-ignore
+const clientws = hc<wstype>('http://localhost:3000')
 export const ws = clientws.ws.$ws(0)
 
 const getUserProfile = async () => {
