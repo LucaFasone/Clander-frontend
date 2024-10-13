@@ -15,7 +15,7 @@ export default defineConfig({
   server:{
     proxy:{
       "/api":{
-        target: 'https://clanderbackend.up.railway.app',
+        target: 'https://clander-production.up.railway.app',
         changeOrigin: true,
       }
     }
