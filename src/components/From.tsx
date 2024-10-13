@@ -2,7 +2,6 @@
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { zodValidator } from '@tanstack/zod-form-adapter'
-import { createEvent, formType, shareEvent } from './../../../sharedTypes.ts'
 import { Field, useForm } from '@tanstack/react-form';
 import { Button } from './ui/button.tsx';
 import { useEvents } from '@/hooks/useEvents.ts';
@@ -14,7 +13,7 @@ import { Popover, PopoverContent, PopoverTrigger } from './ui/popover.tsx';
 import { format, isEqual } from 'date-fns';
 import { Calendar } from './ui/calendar.tsx';
 import { useEffect, useState } from 'react';
-import { Event } from '@/lib/types.ts';
+import { Event, formType } from '@/lib/types.ts';
 import { useToast } from '@/hooks/use-toast.ts';
 
 type FromProps = formType & {
@@ -103,9 +102,6 @@ function Form({ date, dateEnd, reset, currentMonth, title, description, activeRe
             <form.Field
               name='title'
               validatorAdapter={zodValidator()}
-              validators={{
-                onChange: createEvent.shape.title
-              }}
               children={(field) => {
                 return (
                   <div>
@@ -149,6 +145,7 @@ function Form({ date, dateEnd, reset, currentMonth, title, description, activeRe
                         initialFocus
                         mode="range"
                         selected={dateForm}
+                        //@ts-ignore
                         onSelect={(value) => { field.handleChange(value); setDate(value) }}
                         numberOfMonths={2}
                       />
@@ -200,9 +197,6 @@ function Form({ date, dateEnd, reset, currentMonth, title, description, activeRe
               if (value === "") {
                 return undefined;
               }
-              return shareEvent.shape.sharedToEmail.safeParse(value).success
-                ? undefined
-                : 'Email non valida';
             },
           }}
           children={(field) => {

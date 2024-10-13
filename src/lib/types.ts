@@ -16,3 +16,15 @@ export type DatabaseEvents = {
     sharedFrom: string | null;
     actions: string | null;
 } | undefined
+
+export type formType = {
+    date?: Date,
+    dateEnd?: Date | undefined,
+    currentPage?: number | null,
+    currentMonth?: number,
+    title?: string,
+    description?: string,
+    activeReminder?: boolean,
+    eventId?: number,
+    currentYear?: number,
+}
