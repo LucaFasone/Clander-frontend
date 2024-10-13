@@ -3,9 +3,9 @@ import { keepPreviousData, queryOptions } from "@tanstack/react-query"
 import { wstype, type ApiRoutes } from "../../../index"
 import { Event } from '@/lib/types';
 
-const client = hc<ApiRoutes>('/')
+const client = hc<ApiRoutes>('https://clanderbackend.up.railway.app')
 export const api = client.api
-const clientws = hc<wstype>('http://localhost:3000')
+const clientws = hc<wstype>('wss://clander-production.up.railway.app')
 export const ws = clientws.ws.$ws(0)
 
 const getUserProfile = async () => {

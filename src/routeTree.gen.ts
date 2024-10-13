@@ -75,11 +75,62 @@ declare module '@tanstack/react-router' {
 
 // Create and export the route tree
 
-export const routeTree = rootRoute.addChildren({
-  IndexRoute,
-  LandingPageRoute,
-  AuthRoute: AuthRoute.addChildren({ AuthDashboardRoute }),
-})
+interface AuthRouteChildren {
+  AuthDashboardRoute: typeof AuthDashboardRoute
+}
+
+const AuthRouteChildren: AuthRouteChildren = {
+  AuthDashboardRoute: AuthDashboardRoute,
+}
+
+const AuthRouteWithChildren = AuthRoute._addFileChildren(AuthRouteChildren)
+
+export interface FileRoutesByFullPath {
+  '/': typeof IndexRoute
+  '/LandingPage': typeof LandingPageRoute
+  '': typeof AuthRouteWithChildren
+  '/dashboard': typeof AuthDashboardRoute
+}
+
+export interface FileRoutesByTo {
+  '/': typeof IndexRoute
+  '/LandingPage': typeof LandingPageRoute
+  '': typeof AuthRouteWithChildren
+  '/dashboard': typeof AuthDashboardRoute
+}
+
+export interface FileRoutesById {
+  __root__: typeof rootRoute
+  '/': typeof IndexRoute
+  '/LandingPage': typeof LandingPageRoute
+  '/_auth': typeof AuthRouteWithChildren
+  '/_auth/dashboard': typeof AuthDashboardRoute
+}
+
+export interface FileRouteTypes {
+  fileRoutesByFullPath: FileRoutesByFullPath
+  fullPaths: '/' | '/LandingPage' | '' | '/dashboard'
+  fileRoutesByTo: FileRoutesByTo
+  to: '/' | '/LandingPage' | '' | '/dashboard'
+  id: '__root__' | '/' | '/LandingPage' | '/_auth' | '/_auth/dashboard'
+  fileRoutesById: FileRoutesById
+}
+
+export interface RootRouteChildren {
+  IndexRoute: typeof IndexRoute
+  LandingPageRoute: typeof LandingPageRoute
+  AuthRoute: typeof AuthRouteWithChildren
+}
+
+const rootRouteChildren: RootRouteChildren = {
+  IndexRoute: IndexRoute,
+  LandingPageRoute: LandingPageRoute,
+  AuthRoute: AuthRouteWithChildren,
+}
+
+export const routeTree = rootRoute
+  ._addFileChildren(rootRouteChildren)
+  ._addFileTypes<FileRouteTypes>()
 
 /* prettier-ignore-end */
 
