@@ -22,7 +22,7 @@ export default defineConfig({
   },
   build: {
     rollupOptions: {
-      external: ['zod',"drizzle-orm/mysql-core",'drizzle-zod'],
+      external: ['zod',"drizzle-orm/mysql-core",'drizzle-zod',"drizzle-orm/relations"],
     },
   },
 })
