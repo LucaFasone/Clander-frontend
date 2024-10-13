@@ -20,9 +20,5 @@ export default defineConfig({
       }
     }
   },
-  build: {
-    rollupOptions: {
-      external: ['zod','drizzle-zod',"drizzle-orm/relations"],
-    },
-  },
+
 })
