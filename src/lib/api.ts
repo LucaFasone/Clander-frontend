@@ -1,5 +1,5 @@
 import { hc } from 'hono/client'
-import { keepPreviousData, queryOptions } from "@tanstack/react-query"
+import {queryOptions } from "@tanstack/react-query"
 import { wstype, type ApiRoutes } from "../../../index"
 import { Event } from '@/lib/types';
 
