@@ -22,7 +22,7 @@ export default defineConfig({
   },
   build: {
     rollupOptions: {
-      external: ['hono/client','zod'],
+      external: ['hono/client','zod','drizzle-orm/mysql-core'],
     },
   },
 })
