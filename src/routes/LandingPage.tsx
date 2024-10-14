@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button"
 import { CalendarIcon, Users, Clock, Share2} from "lucide-react"
 
 
-export const Route = createFileRoute('/landingpage')({
+export const Route = createFileRoute('/LandingPage')({
   async beforeLoad({ context }) {
     const { user } = await context.authentication;
     if (user) {
