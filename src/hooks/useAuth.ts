@@ -6,6 +6,8 @@ export const useAuth = async () => {
   const queryClient = new QueryClient()
   try{
   const {user} = await queryClient.fetchQuery(userQueryOptions);
+  console.log(user);
+  
   return {user};
 } catch (err) {
   return {user: undefined};
