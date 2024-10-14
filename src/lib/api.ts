@@ -3,7 +3,7 @@ import { keepPreviousData, queryOptions } from "@tanstack/react-query"
 import { wstype, type ApiRoutes } from "../../../index"
 import { Event } from '@/lib/types';
 
-const client = hc<ApiRoutes>('/')
+const client = hc<ApiRoutes>('/pisello/')
 export const api = client.api
 const clientws = hc<wstype>('http://localhost:3000')
 export const ws = clientws.ws.$ws(0)
