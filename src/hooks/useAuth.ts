@@ -6,7 +6,7 @@ export const useAuth = async () => {
   const queryClient = new QueryClient()
   try{
   const {user} = await queryClient.fetchQuery(userQueryOptions);
-  console.log(user);
+  console.log("da frontend", user);
   
   return {user};
 } catch (err) {
