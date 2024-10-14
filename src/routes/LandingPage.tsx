@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button"
 import { CalendarIcon, Users, Clock, Share2} from "lucide-react"
 
 
-export const Route = createFileRoute('/LandingPage')({
+export const Route = createFileRoute('/')({
   async beforeLoad({ context }) {
     const { user } = await context.authentication;
     if (user) {
@@ -32,7 +32,7 @@ export default function LandingPage() {
               <div className="w-full max-w-sm space-y-2">
                 <Button onClick={(e) =>{
                   e.preventDefault();
-                  window.location.href = '/api/login';
+                  window.location.href = 'https://clander-production.up.railway.app/api/login';
                 }}className='mr-2'>Login</Button>
               </div>
             </div>
@@ -90,7 +90,7 @@ export default function LandingPage() {
                 <div className="w-full max-w-sm space-y-2 mx-auto">
                   <Button onClick={(e) => {
                     e.preventDefault();
-                    window.location.href = '/api/register';
+                    window.location.href = 'https://clander-production.up.railway.app/api/register';
                   }}>Register</Button>
                 </div>
               </div>
